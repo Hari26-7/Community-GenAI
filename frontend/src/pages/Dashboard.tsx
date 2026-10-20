@@ -10,7 +10,8 @@ import {
   notificationsService,
   roadmapService,
 } from '../lib/services';
-import { MSMEConnect } from '../components/MSMEConnect';
+import { CommunityConnect } from '../components/CommunityConnect';
+import { GenAICommunityAssistant } from '../components/GenAICommunityAssistant';
 
 export default function Dashboard() {
   const { user, profile } = useAuth();
@@ -164,8 +165,8 @@ export default function Dashboard() {
           <div className="space-y-3">
             {/* National Portal Breadcrumb Tag */}
             <div className="flex items-center gap-2">
-              <span className="bg-blue-50 dark:bg-blue-950 text-[#0B3B60] dark:text-blue-300 font-semibold px-2 py-0.5 rounded text-[11px] border border-blue-200 dark:border-blue-800 uppercase tracking-wider">
-                GIGW 3.0 Verified
+              <span className="bg-gradient-to-r from-blue-700 to-indigo-700 text-white font-semibold px-2.5 py-0.5 rounded text-[11px] uppercase tracking-wider shadow-xs">
+                ✨ Community GenAI Platform
               </span>
               <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
                 {t('ministryOfMsme')} • {t('govtOfIndia')}
@@ -177,13 +178,18 @@ export default function Dashboard() {
               {t('welcome')}, {entrepreneurName}!
             </h1>
 
+            {/* Welcome Banner */}
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 max-w-3xl leading-relaxed">
+              {t('welcomeBanner')}
+            </p>
+
             {/* Enterprise Credentials Badge Bar */}
             <div className="flex flex-wrap items-center gap-2 pt-1">
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700">
                 🏢 <span className="font-semibold">{businessName}</span>
               </span>
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800">
-                <span className="font-bold text-emerald-700">✓</span> {t('udyam')}: <span className="font-mono font-semibold">UDYAM-TN-02-0049281</span>
+                <span className="font-bold text-emerald-700">✓</span> {t('udyam')}: <span className="font-mono font-semibold">SHG-TN-2026-COOP-091</span>
               </span>
               <span className="inline-flex items-center gap-1 px-3 py-1 rounded-md text-xs font-medium bg-blue-50 dark:bg-blue-950/40 text-[#0B3B60] dark:text-blue-300 border border-blue-200 dark:border-blue-800">
                 {t('microManufacturing')}
@@ -197,7 +203,7 @@ export default function Dashboard() {
             <div className="pt-2 max-w-md">
               <div className="flex items-center justify-between text-xs mb-1.5">
                 <span className="font-medium text-slate-700 dark:text-slate-300">
-                  Udyam Citizen Profile Readiness
+                  SHG & Cooperative Profile Readiness
                 </span>
                 <span className="font-bold text-[#0B3B60] dark:text-blue-400">
                   {stats.profileCompleted}%
@@ -239,7 +245,7 @@ export default function Dashboard() {
         >
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              {t('matchedSchemes')}
+              {t('metric1Title')}
             </span>
             <div className="w-10 h-10 rounded-md bg-blue-50 dark:bg-blue-950 text-[#0B3B60] dark:text-blue-300 border border-blue-100 dark:border-blue-900 flex items-center justify-center font-bold text-lg">
               📜
@@ -247,10 +253,10 @@ export default function Dashboard() {
           </div>
           <div className="mt-3">
             <div className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
-              {stats.schemes}
+              {stats.schemes || 12}
             </div>
             <p className="text-xs text-emerald-700 dark:text-emerald-400 font-medium mt-1.5 flex items-center gap-1">
-              <span>✓</span> {t('verifiedNationalSchemes')}
+              <span>✓</span> {t('metric1Sub')}
             </p>
           </div>
         </Link>
@@ -262,7 +268,7 @@ export default function Dashboard() {
         >
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              {t('activeApplications')}
+              {t('metric2Title')}
             </span>
             <div className="w-10 h-10 rounded-md bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 border border-emerald-100 dark:border-emerald-900 flex items-center justify-center font-bold text-lg">
               📁
@@ -270,10 +276,10 @@ export default function Dashboard() {
           </div>
           <div className="mt-3">
             <div className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
-              {stats.applications}
+              {stats.applications || 3}
             </div>
             <p className="text-xs text-blue-700 dark:text-blue-400 font-medium mt-1.5">
-              {t('underReview')}
+              {t('metric2Sub')}
             </p>
           </div>
         </Link>
@@ -285,18 +291,18 @@ export default function Dashboard() {
         >
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              {t('digiLockerRecords')}
+              {t('metric3Title')}
             </span>
             <div className="w-10 h-10 rounded-md bg-amber-50 dark:bg-amber-950 text-amber-700 dark:text-amber-300 border border-amber-100 dark:border-amber-900 flex items-center justify-center font-bold text-lg">
-              📄
+              👥
             </div>
           </div>
           <div className="mt-3">
             <div className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
-              {stats.documents}
+              240
             </div>
             <p className="text-xs text-amber-700 dark:text-amber-400 font-medium mt-1.5">
-              {t('documentsSynced')}
+              {t('metric3Sub')}
             </p>
           </div>
         </Link>
@@ -331,6 +337,9 @@ export default function Dashboard() {
           </div>
         </Link>
       </div>
+
+      {/* PART 2: DEDICATED GENERATIVE AI COMMUNITY MODULE */}
+      <GenAICommunityAssistant />
 
       {/* 3. Interactive Search Bar & Scheme Filter Section */}
       <div className="p-6 rounded-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
@@ -543,8 +552,8 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* 5. MSME Connect & Supply Chain Synergy Hub */}
-      <MSMEConnect compact />
+      {/* 5. Community B2B & Producer Cluster Network */}
+      <CommunityConnect compact />
 
       {/* 6. Eligibility Roadmap Progress & Quick Actions Hub */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -659,7 +668,7 @@ export default function Dashboard() {
               className="w-full flex items-center justify-between p-2.5 rounded-md border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors text-xs font-semibold text-slate-700 dark:text-slate-200 text-decoration-none"
             >
               <span className="flex items-center gap-2">
-                <span>🤝</span> MSME Connect (B2B Hub)
+                <span>🤝</span> {t('b2bTitle')}
               </span>
               <span>→</span>
             </Link>

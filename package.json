@@ -1,7 +1,7 @@
 {
-  "name": "sahayak-ai-root",
+  "name": "community-genai-platform",
   "private": true,
   "scripts": {
-    "build": "cd frontend && npm install && npm run build && node -e \"const fs=require('fs'); fs.rmSync('../dist', {recursive: true, force: true}); fs.cpSync('dist', '../dist', {recursive: true}); fs.copyFileSync('dist/index.html', '../index.html');\""
+    "build": "cd frontend && npm install && npm run build && node -e \"const fs=require('fs'); fs.rmSync('../dist', {recursive: true, force: true}); fs.cpSync('dist', '../dist', {recursive: true}); fs.copyFileSync('dist/index.html', '../index.html'); fs.rmSync('../assets', {recursive: true, force: true}); fs.cpSync('dist/assets', '../assets', {recursive: true});\""
   }
 }

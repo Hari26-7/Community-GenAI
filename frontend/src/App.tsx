@@ -101,6 +101,15 @@ export default function App() {
             />
 
             <Route
+              path="/community-connect"
+              element={
+                <Layout>
+                  <MSMEConnectPage />
+                </Layout>
+              }
+            />
+
+            <Route
               path="/applications"
               element={
                 <Layout>

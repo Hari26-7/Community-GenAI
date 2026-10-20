@@ -81,7 +81,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
 
   // Secondary navigational shortcuts for desktop sidebar
   const secondaryNavItems = [
-    { label: 'MSME Connect (B2B Hub)', path: '/msme-connect', icon: '🤝' },
+    { label: t('communityConnect'), path: '/msme-connect', icon: '🤝' },
     { label: t('eligibilityRoadmap'), path: '/eligibility-roadmap', icon: '🗺️' },
     { label: t('applications'), path: '/applications', icon: '📁' },
     { label: t('notifications'), path: '/notifications', icon: '🔔' },
@@ -116,7 +116,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                 <span className="truncate tracking-wider">GOVERNMENT OF INDIA</span>
               </div>
               <div className="text-[10px] sm:text-[11px] text-slate-300 font-normal truncate">
-                सूक्ष्म, लघु और मध्यम उद्यम मंत्रालय | MINISTRY OF MSME
+                सामुदायिक विकास एवं एमएसएमई मंत्रालय | MINISTRY OF COMMUNITY DEV & MSME
               </div>
             </div>
           </div>
@@ -175,20 +175,25 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
             <div className="min-w-0">
               <div className="flex items-center gap-2">
                 <span className="text-base sm:text-lg font-bold tracking-tight text-[#0B3B60] dark:text-blue-400 truncate">
-                  SAHAYAK AI
+                  Community Sahayak AI
                 </span>
                 <span className="hidden sm:inline-block text-[10px] font-semibold px-2 py-0.5 rounded bg-blue-50 text-[#0B3B60] dark:bg-blue-950 dark:text-blue-200 border border-blue-200 dark:border-blue-800">
                   {t('nationalPortal')}
                 </span>
               </div>
               <div className="text-[11px] text-slate-500 dark:text-slate-400 font-medium hidden md:block truncate">
-                {t('portalSubtitle')}
+                Intelligent Community Development Platform • Powered by Generative AI
               </div>
             </div>
           </Link>
 
           {/* Action Center */}
           <div className="flex items-center justify-end gap-2.5 shrink-0">
+            {/* GenAI Indicator Badge: glowing, animated right next to Voice Assistant */}
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 text-white shadow-md animate-pulse">
+              ✨ Powered by GenAI Copilot
+            </span>
+
             {/* Header Voice Assistant Controls */}
             <HeaderVoiceControls />
 
