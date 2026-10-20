@@ -11,6 +11,7 @@ export default function SchemeMatching() {
   const navigate = useNavigate();
   const [matches, setMatches] = useState<{ scheme: any; score: number; reasons: string[] }[]>([]);
   const [loading, setLoading] = useState(true);
+  const [expandedMatchId, setExpandedMatchId] = useState<string | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -101,8 +102,6 @@ export default function SchemeMatching() {
       </div>
     );
   }
-
-  const [expandedMatchId, setExpandedMatchId] = useState<string | null>(null);
 
   const toggleExpand = (id: string) => {
     setExpandedMatchId((prev) => (prev === id ? null : id));

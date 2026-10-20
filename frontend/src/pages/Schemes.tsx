@@ -11,6 +11,7 @@ export default function Schemes() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
+  const [expandedSchemeId, setExpandedSchemeId] = useState<string | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -62,8 +63,6 @@ export default function Schemes() {
       </div>
     );
   }
-
-  const [expandedSchemeId, setExpandedSchemeId] = useState<string | null>(null);
 
   const toggleExpand = (id: string) => {
     setExpandedSchemeId((prev) => (prev === id ? null : id));
