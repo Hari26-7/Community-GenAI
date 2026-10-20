@@ -1,3 +1,4 @@
+// Community Sahayak AI Platform v1.1 - Built for SEC Mini-Project
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
