@@ -49,12 +49,19 @@ app.include_router(sheets.router, prefix=settings.API_PREFIX)
 from fastapi.responses import FileResponse
 
 FRONTEND_DIST = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "frontend", "dist"))
+ROOT_DIST = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "dist"))
+ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 
-# Mount React static assets if built
-if os.path.exists(FRONTEND_DIST):
-    assets_dir = os.path.join(FRONTEND_DIST, "assets")
-    if os.path.exists(assets_dir):
-        app.mount("/assets", StaticFiles(directory=assets_dir), name="assets")
+def get_dist_dir():
+    for d in [FRONTEND_DIST, ROOT_DIST, ROOT_DIR]:
+        if os.path.exists(os.path.join(d, "index.html")):
+            return d
+    return os.path.join(os.path.dirname(__file__), "static")
+
+resolved_dist = get_dist_dir()
+assets_dir = os.path.join(resolved_dist, "assets")
+if os.path.exists(assets_dir):
+    app.mount("/assets", StaticFiles(directory=assets_dir), name="assets")
 
 @app.get("/api/health")
 def health_check():
@@ -66,15 +73,16 @@ def health_check():
     }
 
 # SPA Fallback: Serve React bundle for all other routes
-@app.get("/{full_path:path}", response_class=FileResponse)
+@app.get("/{full_path:path}")
 def serve_spa(full_path: str):
-    if os.path.exists(FRONTEND_DIST):
-        target_file = os.path.join(FRONTEND_DIST, full_path)
-        if full_path and os.path.isfile(target_file):
+    active_dist = get_dist_dir()
+    if full_path:
+        target_file = os.path.join(active_dist, full_path)
+        if os.path.isfile(target_file):
             return FileResponse(target_file)
-        index_file = os.path.join(FRONTEND_DIST, "index.html")
-        if os.path.exists(index_file):
-            return FileResponse(index_file)
+    index_file = os.path.join(active_dist, "index.html")
+    if os.path.exists(index_file):
+        return FileResponse(index_file)
     return FileResponse(os.path.join(os.path.dirname(__file__), "static", "index.html"))
 
 if __name__ == "__main__":
