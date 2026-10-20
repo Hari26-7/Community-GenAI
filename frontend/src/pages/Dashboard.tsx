@@ -32,6 +32,7 @@ export default function Dashboard() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [appliedSchemes, setAppliedSchemes] = useState<Record<string, boolean>>({});
+  const [expandedSchemeId, setExpandedSchemeId] = useState<string | null>(null);
 
   // Listen for Voice Commands broadcasted by VoiceAssistant
   useEffect(() => {
@@ -149,13 +150,11 @@ export default function Dashboard() {
     );
   }
 
-  const [expandedSchemeId, setExpandedSchemeId] = useState<string | null>(null);
-
   const toggleExpandScheme = (id: string) => {
     setExpandedSchemeId((prev) => (prev === id ? null : id));
   };
 
-  const roadmapPercentage = Math.round((stats.roadmapCompleted / stats.roadmapTotal) * 100);
+  const roadmapPercentage = Math.round((stats.roadmapCompleted / (stats.roadmapTotal || 1)) * 100);
 
   return (
     <div className="space-y-6">

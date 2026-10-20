@@ -22,14 +22,16 @@ import LanguageSelection from './pages/LanguageSelection';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import MSMEConnectPage from './pages/MSMEConnectPage';
+import { ErrorBoundary } from './components/ErrorBoundary';
 
 export default function App() {
   return (
     <ThemeProvider>
       <LanguageProvider>
         <AuthProvider>
-        <BrowserRouter>
-          <Routes>
+          <ErrorBoundary>
+            <BrowserRouter>
+              <Routes>
 
             {/* Auth Pages without sidebar */}
             <Route path="/login" element={<Login />} />
@@ -176,6 +178,7 @@ export default function App() {
 
           </Routes>
         </BrowserRouter>
+      </ErrorBoundary>
       </AuthProvider>
     </LanguageProvider>
   </ThemeProvider>

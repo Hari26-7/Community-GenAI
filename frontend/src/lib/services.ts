@@ -5,12 +5,29 @@
 
 export const API_BASE = '/api';
 
+/**
+ * Safely fetches JSON from an endpoint, falling back to a default value
+ * if the response is non-200, network error, or returns HTML (e.g. index.html rewrite).
+ */
+export async function safeFetchJson<T>(url: string, options?: RequestInit, fallback: T = [] as any): Promise<T> {
+  try {
+    const res = await fetch(url, options);
+    if (!res.ok) return fallback;
+    const contentType = res.headers.get('content-type') || '';
+    if (!contentType.includes('application/json')) {
+      return fallback;
+    }
+    return await res.json();
+  } catch (err) {
+    console.warn(`safeFetchJson fallback for ${url}:`, err);
+    return fallback;
+  }
+}
+
 // 1. Schemes Service
 export const schemesService = {
   async getAllSchemes() {
-    const res = await fetch(`${API_BASE}/schemes`);
-    if (!res.ok) throw new Error('Failed to fetch schemes');
-    return await res.json();
+    return await safeFetchJson(`${API_BASE}/schemes`, undefined, []);
   },
 
   matchSchemes(profile: any, schemesList?: any[]) {
@@ -62,9 +79,7 @@ export const schemesService = {
 // 2. Applications Service
 export const applicationsService = {
   async getApplications(userId: string) {
-    const res = await fetch(`${API_BASE}/applications/user/${userId}`);
-    if (!res.ok) return [];
-    return await res.json();
+    return await safeFetchJson(`${API_BASE}/applications/user/${userId}`, undefined, []);
   },
 
   async createApplication(userId: string, schemeId: string, schemeName: string, data: any = {}) {
@@ -94,9 +109,7 @@ export const applicationsService = {
 // 3. Documents Service
 export const documentsService = {
   async getDocuments(userId: string) {
-    const res = await fetch(`${API_BASE}/documents/user/${userId}`);
-    if (!res.ok) return [];
-    return await res.json();
+    return await safeFetchJson(`${API_BASE}/documents/user/${userId}`, undefined, []);
   },
 
   async uploadDocument(userId: string, file: File, documentType: string) {
@@ -135,9 +148,7 @@ export const documentsService = {
 // 4. Notifications Service
 export const notificationsService = {
   async getNotifications(userId: string) {
-    const res = await fetch(`${API_BASE}/notifications/user/${userId}`);
-    if (!res.ok) return [];
-    return await res.json();
+    return await safeFetchJson(`${API_BASE}/notifications/user/${userId}`, undefined, []);
   },
 
   async createNotification(userId: string, type: string, title: string, message: string, dateStr?: string) {
@@ -178,9 +189,7 @@ export const notificationsService = {
 // 5. Eligibility Roadmap Service
 export const roadmapService = {
   async getRoadmap(userId: string) {
-    const res = await fetch(`${API_BASE}/roadmap/${userId}`);
-    if (!res.ok) return [];
-    return await res.json();
+    return await safeFetchJson(`${API_BASE}/roadmap/${userId}`, undefined, []);
   },
 
   async createDefaultRoadmap(userId: string) {
@@ -253,9 +262,7 @@ export const stackingService = {
 // 8. Profile Service
 export const profileService = {
   async getProfile(userId: string) {
-    const res = await fetch(`${API_BASE}/profiles/${userId}`);
-    if (!res.ok) return null;
-    return await res.json();
+    return await safeFetchJson(`${API_BASE}/profiles/${userId}`, undefined, null);
   },
 
   async updateProfile(userId: string, profileData: any) {
