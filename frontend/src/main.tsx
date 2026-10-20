@@ -1,11 +1,13 @@
-// Community Sahayak AI Platform v1.1 - Built for SEC Mini-Project
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import './index.css';
+import { ErrorBoundary } from './components/ErrorBoundary';
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
-    <App />
+    <ErrorBoundary>
+      <App />
+    </ErrorBoundary>
   </React.StrictMode>
 );

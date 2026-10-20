@@ -15,8 +15,12 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<any | null>(() => {
-    const saved = localStorage.getItem('msme_user');
-    return saved ? JSON.parse(saved) : { id: 'user_2bd27b1c4c', email: 'entrepreneur@example.com' };
+    try {
+      const saved = localStorage.getItem('msme_user');
+      return saved ? JSON.parse(saved) : { id: 'user_2bd27b1c4c', email: 'entrepreneur@example.com' };
+    } catch {
+      return { id: 'user_2bd27b1c4c', email: 'entrepreneur@example.com' };
+    }
   });
 
   const [profile, setProfile] = useState<any | null>(null);
