@@ -1,685 +1,485 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { useLanguage } from '../context/LanguageContext';
-import { MOCK_GOV_SCHEMES, SchemeData } from '../data/mockSchemes';
+import { communityService, aiService } from '../lib/services';
 import {
-  schemesService,
-  applicationsService,
-  documentsService,
-  notificationsService,
-  roadmapService,
-} from '../lib/services';
-import { CommunityConnect } from '../components/CommunityConnect';
-import { GenAICommunityAssistant } from '../components/GenAICommunityAssistant';
+  CommunityAnalytics,
+  CommunityIssue,
+  CommunityActivity,
+  AIChatMessage
+} from '../types/community';
+import { PageHeader } from '../components/ui/PageHeader';
+import { Card, CardHeader } from '../components/ui/Card';
+import { Button } from '../components/ui/Button';
+import { Badge } from '../components/ui/Badge';
+import { LoadingSkeleton } from '../components/ui/LoadingSkeleton';
+import { EmptyState } from '../components/ui/EmptyState';
+import {
+  Users,
+  AlertCircle,
+  CheckCircle2,
+  Sparkles,
+  Bot,
+  Search,
+  Megaphone,
+  ArrowRight,
+  TrendingUp,
+  Clock,
+  Layers,
+  FileText,
+  Activity as ActivityIcon,
+  MapPin,
+  ExternalLink,
+  ChevronRight
+} from 'lucide-react';
 
-export default function Dashboard() {
-  const { user, profile } = useAuth();
-  const { language, t } = useLanguage();
+export const Dashboard: React.FC = () => {
+  const { profile } = useAuth();
+  const navigate = useNavigate();
 
-  const [stats, setStats] = useState({
-    schemes: 10,
-    applications: 2,
-    documents: 5,
-    notifications: 3,
-    roadmapCompleted: 3,
-    roadmapTotal: 5,
-    profileCompleted: 75,
-  });
+  const [analytics, setAnalytics] = useState<CommunityAnalytics | null>(null);
+  const [issues, setIssues] = useState<CommunityIssue[]>([]);
+  const [activities, setActivities] = useState<CommunityActivity[]>([]);
+  const [recentChats, setRecentChats] = useState<AIChatMessage[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Search & Filtering
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string>('All');
-  const [appliedSchemes, setAppliedSchemes] = useState<Record<string, boolean>>({});
-  const [expandedSchemeId, setExpandedSchemeId] = useState<string | null>(null);
+  // Compute time-based greeting
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good morning';
+    if (hour < 17) return 'Good afternoon';
+    return 'Good evening';
+  };
 
-  // Listen for Voice Commands broadcasted by VoiceAssistant
+  const userName = profile?.full_name || 'Community Leader';
+
   useEffect(() => {
-    const handleVoiceCommand = (e: any) => {
-      const voiceText = e.detail?.query || '';
-      if (voiceText) {
-        setSearchQuery(voiceText);
+    const fetchDashboardData = async () => {
+      setLoading(true);
+      try {
+        const [anData, issData, actData, chatData] = await Promise.all([
+          communityService.getAnalytics(),
+          communityService.getIssues(),
+          communityService.getActivity(8),
+          aiService.getHistory(5)
+        ]);
+
+        setAnalytics(anData);
+        setIssues(issData);
+        setActivities(actData);
+        setRecentChats(chatData);
+      } catch (err) {
+        console.warn('Dashboard data fetch warning:', err);
+      } finally {
+        setLoading(false);
       }
     };
 
-    window.addEventListener('sahayak-voice-command', handleVoiceCommand);
-    return () => {
-      window.removeEventListener('sahayak-voice-command', handleVoiceCommand);
-    };
+    fetchDashboardData();
   }, []);
 
-  // Load live statistics from backend or initialize fallback
-  useEffect(() => {
-    let isMounted = true;
-    (async () => {
-      try {
-        if (user) {
-          const [apps, docs, notifs, roadmap] = await Promise.all([
-            applicationsService.getApplications(user.id).catch(() => []),
-            documentsService.getDocuments(user.id).catch(() => []),
-            notificationsService.getNotifications(user.id).catch(() => []),
-            roadmapService.getRoadmap(user.id).catch(() => []),
-          ]);
-
-          if (isMounted) {
-            const completedSteps = roadmap.filter((s: any) => s.status === 'completed').length;
-            setStats({
-              schemes: MOCK_GOV_SCHEMES.length,
-              applications: apps.length > 0 ? apps.length : 2,
-              documents: docs.length > 0 ? docs.length : 5,
-              notifications: notifs.length > 0 ? notifs.filter((n: any) => !n.is_read).length : 3,
-              roadmapCompleted: completedSteps > 0 ? completedSteps : 3,
-              roadmapTotal: roadmap.length > 0 ? roadmap.length : 5,
-              profileCompleted: 80,
-            });
-          }
-        }
-      } catch (err) {
-        console.warn('Using mock stats fallback', err);
-      } finally {
-        if (isMounted) setLoading(false);
-      }
-    })();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [user]);
-
-  // Categories list with dynamic translation keys
-  const categoryOptions = [
-    { id: 'All', labelKey: 'catAll' },
-    { id: 'Capital Subsidy', labelKey: 'catCapitalSubsidy' },
-    { id: 'Credit & Finance', labelKey: 'catCreditFinance' },
-    { id: 'Quality & Technology', labelKey: 'catQualityTech' },
-    { id: 'Rural & Traditional', labelKey: 'catRuralTraditional' },
-    { id: 'Incentive & Growth', labelKey: 'catIncentiveGrowth' },
-  ];
-
-  // Filter schemes based on search query and category
-  const filteredSchemes = useMemo(() => {
-    return MOCK_GOV_SCHEMES.filter((scheme) => {
-      const matchesCategory =
-        selectedCategory === 'All' || scheme.category === selectedCategory;
-
-      const q = searchQuery.toLowerCase().trim();
-      if (!q) return matchesCategory;
-
-      const matchesSearch =
-        scheme.name.toLowerCase().includes(q) ||
-        scheme.shortCode.toLowerCase().includes(q) ||
-        scheme.hindiName.toLowerCase().includes(q) ||
-        scheme.tamilName.toLowerCase().includes(q) ||
-        scheme.description.toLowerCase().includes(q) ||
-        scheme.maxSubsidy.toLowerCase().includes(q) ||
-        scheme.tags.some((tItem) => tItem.toLowerCase().includes(q));
-
-      return matchesCategory && matchesSearch;
-    });
-  }, [searchQuery, selectedCategory]);
-
-  const handleApplyClick = (schemeId: string, schemeName: string) => {
-    setAppliedSchemes((prev) => ({ ...prev, [schemeId]: true }));
-    if (user) {
-      applicationsService
-        .createApplication(user.id, schemeId, schemeName)
-        .catch((e) => console.warn('Mock apply action saved locally', e));
-    }
-  };
-
-  const getSchemeTitle = (scheme: SchemeData) => {
-    if (language === 'hi') return scheme.hindiName;
-    if (language === 'ta') return scheme.tamilName;
-    return scheme.name;
-  };
-
-  const entrepreneurName = profile?.full_name || 'Hari Haran';
-  const businessName = profile?.business_name || 'M/s Sri Lakshmi Agro Enterprises';
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[50vh]">
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-12 h-12 border-4 border-blue-600/20 border-t-blue-600 rounded-full animate-spin"></div>
-          <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
-            {t('loadingCitizenDashboard')}
-          </span>
-        </div>
-      </div>
-    );
-  }
-
-  const toggleExpandScheme = (id: string) => {
-    setExpandedSchemeId((prev) => (prev === id ? null : id));
-  };
-
-  const roadmapPercentage = Math.round((stats.roadmapCompleted / (stats.roadmapTotal || 1)) * 100);
+  const openIssues = issues.filter((i) => i.status !== 'Resolved');
+  const resolvedIssues = issues.filter((i) => i.status === 'Resolved');
 
   return (
-    <div className="space-y-6">
-      {/* 1. Official Government Citizen Header & Enterprise Profile Banner */}
-      <div className="rounded-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 shadow-sm">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-          <div className="space-y-3">
-            {/* National Portal Breadcrumb Tag */}
-            <div className="flex items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold px-2.5 py-1 rounded-md text-xs uppercase tracking-wider border border-slate-300 dark:border-slate-700">
-                <span className="w-2 h-2 rounded-full bg-blue-600"></span>
-                <span>Community MSME Platform</span>
-              </span>
-              <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
-                {t('ministryOfMsme')} • {t('govtOfIndia')}
-              </span>
-            </div>
-
-            {/* Welcome Greeting */}
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
-              {t('welcome')}, {entrepreneurName}!
-            </h1>
-
-            {/* Welcome Banner */}
-            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 max-w-3xl leading-relaxed">
-              {t('welcomeBanner')}
-            </p>
-
-            {/* Enterprise Credentials Badge Bar */}
-            <div className="flex flex-wrap items-center gap-2 pt-1">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700">
-                🏢 <span className="font-semibold">{businessName}</span>
-              </span>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800">
-                <span className="font-bold text-emerald-700">✓</span> {t('udyam')}: <span className="font-mono font-semibold">SHG-TN-2026-COOP-091</span>
-              </span>
-              <span className="inline-flex items-center gap-1 px-3 py-1 rounded-md text-xs font-medium bg-blue-50 dark:bg-blue-950/40 text-[#0B3B60] dark:text-blue-300 border border-blue-200 dark:border-blue-800">
-                {t('microManufacturing')}
-              </span>
-              <span className="inline-flex items-center gap-1 px-3 py-1 rounded-md text-xs font-medium bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700">
-                🔒 {t('digiLockerKycVerified')}
-              </span>
-            </div>
-
-            {/* Visual Progress: Profile Completeness */}
-            <div className="pt-2 max-w-md">
-              <div className="flex items-center justify-between text-xs mb-1.5">
-                <span className="font-medium text-slate-700 dark:text-slate-300">
-                  SHG & Cooperative Profile Readiness
-                </span>
-                <span className="font-bold text-[#0B3B60] dark:text-blue-400">
-                  {stats.profileCompleted}%
-                </span>
-              </div>
-              <div className="h-2 bg-slate-200 dark:bg-slate-700 rounded-sm overflow-hidden">
-                <div
-                  className="h-full bg-blue-600 rounded-sm transition-all duration-300"
-                  style={{ width: `${stats.profileCompleted}%` }}
-                ></div>
-              </div>
-            </div>
-          </div>
-
-          {/* Right Action: National MSME Single Window Clearance Status */}
-          <div className="flex flex-col sm:flex-row lg:flex-col items-start lg:items-end gap-3 shrink-0">
-            <div className="p-4 rounded-md bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-left lg:text-right">
-              <div className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                {t('prioritySectorLending')}
-              </div>
-              <div className="text-lg font-bold tracking-tight text-[#0B3B60] dark:text-blue-400 mt-0.5">
-                {t('tier1Priority')}
-              </div>
-              <div className="text-xs text-emerald-700 dark:text-emerald-400 font-semibold flex items-center gap-1.5 justify-start lg:justify-end mt-1">
-                <span className="w-2 h-2 rounded-full bg-emerald-600"></span>
-                <span>{t('capitalSubsidyEligible')}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* 2. Key Metrics Stats Cards - Strict 8-pt Grid System & Flat Enterprise Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {/* Card 1: Matched Schemes */}
-        <Link
-          to="/schemes"
-          className="group block bg-white dark:bg-slate-900 rounded-md border border-slate-200 dark:border-slate-800 p-6 shadow-sm hover:border-slate-300 dark:hover:border-slate-700 transition-colors text-decoration-none"
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              {t('metric1Title')}
-            </span>
-            <div className="w-9 h-9 rounded-md bg-slate-100 dark:bg-slate-800 text-[#0B3B60] dark:text-blue-300 border border-slate-200 dark:border-slate-700 flex items-center justify-center font-bold text-sm">
-              📜
-            </div>
-          </div>
-          <div className="mt-3">
-            <div className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
-              {stats.schemes || 12}
-            </div>
-            <p className="text-xs text-emerald-700 dark:text-emerald-400 font-medium mt-1.5 flex items-center gap-1">
-              <span>✓</span> {t('metric1Sub')}
-            </p>
-          </div>
-        </Link>
-
-        {/* Card 2: Active Applications */}
-        <Link
-          to="/applications"
-          className="group block bg-white dark:bg-slate-900 rounded-md border border-slate-200 dark:border-slate-800 p-6 shadow-sm hover:border-slate-300 dark:hover:border-slate-700 transition-colors text-decoration-none"
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              {t('metric2Title')}
-            </span>
-            <div className="w-9 h-9 rounded-md bg-slate-100 dark:bg-slate-800 text-emerald-700 dark:text-emerald-300 border border-slate-200 dark:border-slate-700 flex items-center justify-center font-bold text-sm">
-              📁
-            </div>
-          </div>
-          <div className="mt-3">
-            <div className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
-              {stats.applications || 3}
-            </div>
-            <p className="text-xs text-blue-700 dark:text-blue-400 font-medium mt-1.5">
-              {t('metric2Sub')}
-            </p>
-          </div>
-        </Link>
-
-        {/* Card 3: DigiLocker Records */}
-        <Link
-          to="/documents"
-          className="group block bg-white dark:bg-slate-900 rounded-md border border-slate-200 dark:border-slate-800 p-6 shadow-sm hover:border-slate-300 dark:hover:border-slate-700 transition-colors text-decoration-none"
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              {t('metric3Title')}
-            </span>
-            <div className="w-9 h-9 rounded-md bg-slate-100 dark:bg-slate-800 text-amber-700 dark:text-amber-300 border border-slate-200 dark:border-slate-700 flex items-center justify-center font-bold text-sm">
-              👥
-            </div>
-          </div>
-          <div className="mt-3">
-            <div className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
-              240
-            </div>
-            <p className="text-xs text-amber-700 dark:text-amber-400 font-medium mt-1.5">
-              {t('metric3Sub')}
-            </p>
-          </div>
-        </Link>
-
-        {/* Card 4: Roadmap Step Progress with Visual Progress Bar */}
-        <Link
-          to="/eligibility-roadmap"
-          className="group block bg-white dark:bg-slate-900 rounded-md border border-slate-200 dark:border-slate-800 p-6 shadow-sm hover:border-slate-300 dark:hover:border-slate-700 transition-colors text-decoration-none"
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              {t('clearanceReadiness')}
-            </span>
-            <div className="w-9 h-9 rounded-md bg-slate-100 dark:bg-slate-800 text-blue-700 dark:text-blue-300 border border-slate-200 dark:border-slate-700 flex items-center justify-center font-bold text-sm">
-              ⚡
-            </div>
-          </div>
-          <div className="mt-3">
-            <div className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
-              {roadmapPercentage}%
-            </div>
-            {/* Visual Horizontal Progress Bar */}
-            <div className="mt-2 h-2 bg-slate-200 dark:bg-slate-700 rounded-sm overflow-hidden">
-              <div
-                className="h-full bg-blue-600 rounded-sm"
-                style={{ width: `${roadmapPercentage}%` }}
-              ></div>
-            </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mt-1.5">
-              {stats.roadmapCompleted} of {stats.roadmapTotal} {t('stagesCompleted')}
-            </p>
-          </div>
-        </Link>
-      </div>
-
-      {/* PART 2: DEDICATED GENERATIVE AI COMMUNITY MODULE */}
-      <GenAICommunityAssistant />
-
-      {/* 3. Interactive Search Bar & Scheme Filter Section */}
-      <div className="p-6 rounded-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div className="max-w-7xl mx-auto space-y-6">
+      {/* 1. Header & Greeting */}
+      <div className="border-b border-slate-200 dark:border-slate-800 pb-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h2 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-              <span>🎯</span> {t('schemesNavigator')}
-            </h2>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-              {t('searchSubtitle')}
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100 flex items-center gap-2">
+              <span>{getGreeting()}, {userName} 👋</span>
+            </h1>
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
+              Here's what's happening across your community.
             </p>
           </div>
 
-          {/* Voice Search Feedback Pill */}
-          {searchQuery && (
-            <div className="flex items-center gap-2 px-3 py-1 rounded-md bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-800 text-xs">
-              <span className="text-amber-800 dark:text-amber-300 font-semibold">
-                {t('filter')}: "{searchQuery}"
-              </span>
-              <button
-                onClick={() => setSearchQuery('')}
-                className="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 font-bold"
-              >
-                ✕ {t('clear')}
-              </button>
-            </div>
-          )}
-        </div>
-
-        {/* Traditional Enterprise Input Box */}
-        <div className="relative">
-          <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 text-sm">
-            🔍
-          </span>
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder={t('searchPlaceholder')}
-            className="w-full pl-10 pr-28 py-2.5 rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition-colors"
-          />
-          <div className="absolute inset-y-0 right-0 pr-2.5 flex items-center">
-            <span className="text-slate-500 dark:text-slate-400 text-xs font-medium px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
-              🎙️ {t('voiceEnabled')}
-            </span>
+          <div className="flex items-center gap-2">
+            <Button
+              size="sm"
+              variant="primary"
+              onClick={() => navigate('/ai-assistant')}
+            >
+              <Bot className="w-3.5 h-3.5 mr-1" />
+              <span>Ask Community Sahayak</span>
+            </Button>
           </div>
         </div>
+      </div>
 
-        {/* Category Filter Controls */}
-        <div className="flex flex-wrap gap-2 pt-1">
-          {categoryOptions.map((cat) => (
-            <button
-              key={cat.id}
-              onClick={() => setSelectedCategory(cat.id)}
-              className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors border ${
-                selectedCategory === cat.id
-                  ? 'bg-blue-600 border-blue-600 text-white'
-                  : 'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-750'
-              }`}
-            >
-              {t(cat.labelKey)}
-            </button>
+      {/* 2. Overview Statistics Cards */}
+      {loading ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Card key={i} className="p-4">
+              <LoadingSkeleton rows={2} />
+            </Card>
           ))}
         </div>
-      </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* Card 1: Community Members */}
+          <Card className="p-4">
+            <div className="flex items-center justify-between text-xs font-semibold text-slate-500 uppercase tracking-wider">
+              <span>Community Members</span>
+              <Users className="w-4 h-4 text-[#0B3B60] dark:text-blue-400" />
+            </div>
+            <div className="text-2xl font-bold text-slate-900 dark:text-slate-100 mt-2 font-mono">
+              {analytics?.total_members || 0}
+            </div>
+            <div className="text-[11px] text-slate-500 mt-1 flex items-center gap-1">
+              <span className="text-emerald-600 font-semibold">Active</span>
+              <span>•</span>
+              <span>Ward residents & representatives</span>
+            </div>
+          </Card>
 
-      {/* 4. Structured Data Presentation: Enterprise Data Table for Schemes */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-            {t('showingSchemes')} <span className="font-bold text-[#0B3B60] dark:text-blue-400">{filteredSchemes.length}</span> of {MOCK_GOV_SCHEMES.length} {t('recommendedSchemes')}
-          </div>
-          <Link
-            to="/scheme-matching"
-            className="text-xs font-semibold text-blue-700 dark:text-blue-400 hover:underline flex items-center gap-1"
+          {/* Card 2: Active Issues */}
+          <Card className="p-4">
+            <div className="flex items-center justify-between text-xs font-semibold text-slate-500 uppercase tracking-wider">
+              <span>Active Issues</span>
+              <AlertCircle className="w-4 h-4 text-amber-500" />
+            </div>
+            <div className="text-2xl font-bold text-slate-900 dark:text-slate-100 mt-2 font-mono">
+              {openIssues.length}
+            </div>
+            <div className="text-[11px] text-slate-500 mt-1">
+              {issues.filter((i) => i.status === 'Open').length} open • {issues.filter((i) => i.status === 'In Progress').length} in progress
+            </div>
+          </Card>
+
+          {/* Card 3: Resolved Issues */}
+          <Card className="p-4">
+            <div className="flex items-center justify-between text-xs font-semibold text-slate-500 uppercase tracking-wider">
+              <span>Resolved Issues</span>
+              <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+            </div>
+            <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-2 font-mono">
+              {resolvedIssues.length}
+            </div>
+            <div className="text-[11px] text-slate-500 mt-1">
+              {issues.length > 0
+                ? `${Math.round((resolvedIssues.length / issues.length) * 100)}% resolution rate`
+                : 'No issues logged yet'}
+            </div>
+          </Card>
+
+          {/* Card 4: AI Assistance Used */}
+          <Card className="p-4">
+            <div className="flex items-center justify-between text-xs font-semibold text-slate-500 uppercase tracking-wider">
+              <span>AI Assistance Used</span>
+              <Sparkles className="w-4 h-4 text-blue-600" />
+            </div>
+            <div className="text-2xl font-bold text-blue-600 dark:text-blue-400 mt-2 font-mono">
+              {analytics?.ai_assistance_count || 0}
+            </div>
+            <div className="text-[11px] text-slate-500 mt-1">
+              Diagnostic & solution runs
+            </div>
+          </Card>
+        </div>
+      )}
+
+      {/* 3. Quick Action Cards */}
+      <div>
+        <div className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3">
+          Quick Actions
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <button
+            onClick={() => navigate('/problem-analyzer')}
+            className="text-left p-4 rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-blue-400 dark:hover:border-blue-600 hover:bg-slate-50 dark:hover:bg-slate-850 transition-all text-xs group cursor-pointer shadow-xs"
           >
-            <span>{t('runAiMatcher')} →</span>
-          </Link>
-        </div>
+            <div className="w-8 h-8 rounded bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 flex items-center justify-center mb-3">
+              <Search className="w-4 h-4" />
+            </div>
+            <div className="font-bold text-slate-900 dark:text-slate-100 flex items-center justify-between">
+              <span>Analyze a Problem</span>
+              <ChevronRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-blue-600 transition-colors" />
+            </div>
+            <p className="text-slate-500 dark:text-slate-400 mt-1 line-clamp-2 text-[11px]">
+              Triage root causes, severity, and short/long-term mitigation steps.
+            </p>
+          </button>
 
-        {/* Structured Data Table with Horizontal Dividers (divide-y divide-slate-200) */}
-        <div className="bg-white dark:bg-slate-900 rounded-md border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse text-sm">
-              <thead>
-                <tr className="bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 text-xs uppercase font-semibold">
-                  <th className="py-3 px-4">Scheme Code & Title</th>
-                  <th className="py-3 px-4">Category</th>
-                  <th className="py-3 px-4">Maximum Benefit</th>
-                  <th className="py-3 px-4">Synergy Fit</th>
-                  <th className="py-3 px-4 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
-                {filteredSchemes.map((scheme) => {
-                  const isApplied = appliedSchemes[scheme.id];
-                  const isExpanded = expandedSchemeId === scheme.id;
+          <button
+            onClick={() => navigate('/solution-generator')}
+            className="text-left p-4 rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-emerald-400 dark:hover:border-emerald-600 hover:bg-slate-50 dark:hover:bg-slate-850 transition-all text-xs group cursor-pointer shadow-xs"
+          >
+            <div className="w-8 h-8 rounded bg-emerald-50 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-3">
+              <Sparkles className="w-4 h-4" />
+            </div>
+            <div className="font-bold text-slate-900 dark:text-slate-100 flex items-center justify-between">
+              <span>Generate a Solution</span>
+              <ChevronRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-emerald-600 transition-colors" />
+            </div>
+            <p className="text-slate-500 dark:text-slate-400 mt-1 line-clamp-2 text-[11px]">
+              Synthesize 3 practical community and municipal intervention options.
+            </p>
+          </button>
 
-                  return (
-                    <React.Fragment key={scheme.id}>
-                      <tr className="hover:bg-slate-50/75 dark:hover:bg-slate-800/40 transition-colors">
-                        <td className="py-3.5 px-4">
-                          <div className="flex items-start gap-2.5">
-                            <span className="font-mono text-xs font-bold text-[#0B3B60] dark:text-blue-400 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded border border-slate-300 dark:border-slate-700 shrink-0">
-                              {scheme.shortCode}
-                            </span>
-                            <div>
-                              <div className="font-semibold text-slate-900 dark:text-white leading-tight">
-                                {getSchemeTitle(scheme)}
-                              </div>
-                              <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-                                {scheme.nodalAgency}
-                              </div>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="py-3.5 px-4">
-                          <span className="inline-block px-2 py-0.5 rounded text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
-                            {scheme.category}
-                          </span>
-                        </td>
-                        <td className="py-3.5 px-4">
-                          <div className="text-xs font-semibold text-slate-900 dark:text-white">
-                            {scheme.maxSubsidy}
-                          </div>
-                        </td>
-                        <td className="py-3.5 px-4">
-                          <div className="w-28">
-                            <div className="flex items-center justify-between text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                              <span>{scheme.matchPercentage}%</span>
-                            </div>
-                            <div className="h-1.5 bg-slate-200 dark:bg-slate-700 rounded-sm overflow-hidden">
-                              <div
-                                className="h-full bg-blue-600 rounded-sm"
-                                style={{ width: `${scheme.matchPercentage}%` }}
-                              ></div>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="py-3.5 px-4 text-right">
-                          <div className="inline-flex items-center gap-2">
-                            <button
-                              onClick={() => toggleExpandScheme(scheme.id)}
-                              className="px-2.5 py-1 text-xs font-medium rounded-md border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                            >
-                              {isExpanded ? 'Hide' : 'Details'}
-                            </button>
-                            <button
-                              onClick={() => handleApplyClick(scheme.id, scheme.name)}
-                              className={`px-3 py-1 rounded-md text-xs font-semibold transition-colors ${
-                                isApplied
-                                  ? 'bg-emerald-700 text-white cursor-default'
-                                  : 'bg-blue-600 hover:bg-blue-700 text-white'
-                              }`}
-                            >
-                              {isApplied ? t('applicationSubmitted') : t('applyJanSamarth')}
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
+          <button
+            onClick={() => navigate('/announcement-writer')}
+            className="text-left p-4 rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-amber-400 dark:hover:border-amber-600 hover:bg-slate-50 dark:hover:bg-slate-850 transition-all text-xs group cursor-pointer shadow-xs"
+          >
+            <div className="w-8 h-8 rounded bg-amber-50 dark:bg-amber-950 text-amber-600 dark:text-amber-400 flex items-center justify-center mb-3">
+              <Megaphone className="w-4 h-4" />
+            </div>
+            <div className="font-bold text-slate-900 dark:text-slate-100 flex items-center justify-between">
+              <span>Draft an Announcement</span>
+              <ChevronRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-amber-600 transition-colors" />
+            </div>
+            <p className="text-slate-500 dark:text-slate-400 mt-1 line-clamp-2 text-[11px]">
+              Create multi-format circulars for notice boards, WhatsApp & social media.
+            </p>
+          </button>
 
-                      {/* Expandable Details Row */}
-                      {isExpanded && (
-                        <tr className="bg-slate-50/60 dark:bg-slate-800/20">
-                          <td colSpan={5} className="p-4 border-t border-slate-100 dark:border-slate-800">
-                            <div className="space-y-3 max-w-4xl text-xs">
-                              <div>
-                                <span className="font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider text-[11px]">
-                                  Description:
-                                </span>
-                                <p className="text-slate-600 dark:text-slate-400 mt-0.5 leading-relaxed">
-                                  {scheme.description}
-                                </p>
-                              </div>
-
-                              <div>
-                                <span className="font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider text-[11px]">
-                                  {t('keyEligibility')}:
-                                </span>
-                                <ul className="mt-1 space-y-1 pl-1 text-slate-600 dark:text-slate-400">
-                                  {scheme.keyEligibility.map((item, idx) => (
-                                    <li key={idx} className="flex items-start gap-2">
-                                      <span className="text-emerald-600 font-bold">✓</span>
-                                      <span>{item}</span>
-                                    </li>
-                                  ))}
-                                </ul>
-                              </div>
-
-                              <div className="pt-1">
-                                <a
-                                  href={scheme.portalUrl}
-                                  target="_blank"
-                                  rel="noreferrer"
-                                  className="text-blue-700 dark:text-blue-400 font-semibold hover:underline inline-flex items-center gap-1"
-                                >
-                                  {t('portalGuidelines')} ↗
-                                </a>
-                              </div>
-                            </div>
-                          </td>
-                        </tr>
-                      )}
-                    </React.Fragment>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+          <button
+            onClick={() => navigate('/ai-assistant')}
+            className="text-left p-4 rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-purple-400 dark:hover:border-purple-600 hover:bg-slate-50 dark:hover:bg-slate-850 transition-all text-xs group cursor-pointer shadow-xs"
+          >
+            <div className="w-8 h-8 rounded bg-purple-50 dark:bg-purple-950 text-purple-600 dark:text-purple-400 flex items-center justify-center mb-3">
+              <Bot className="w-4 h-4" />
+            </div>
+            <div className="font-bold text-slate-900 dark:text-slate-100 flex items-center justify-between">
+              <span>Ask Community Sahayak</span>
+              <ChevronRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-purple-600 transition-colors" />
+            </div>
+            <p className="text-slate-500 dark:text-slate-400 mt-1 line-clamp-2 text-[11px]">
+              Chat directly with your intelligent civic copilot for real-time guidance.
+            </p>
+          </button>
         </div>
       </div>
 
-      {/* 5. Community B2B & Producer Cluster Network */}
-      <CommunityConnect compact />
+      {/* 4. Main Two-Column Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* Left Column (8 cols): Recent Issues & AI Insights */}
+        <div className="lg:col-span-8 space-y-6">
+          {/* Recent Community Issues */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between w-full">
+                <div className="flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 text-amber-500" />
+                  <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100">
+                    Recent Community Issues
+                  </h2>
+                </div>
+                <Link
+                  to="/community"
+                  className="text-xs text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1 font-semibold"
+                >
+                  <span>View All ({issues.length})</span>
+                  <ExternalLink className="w-3 h-3" />
+                </Link>
+              </div>
+            </CardHeader>
 
-      {/* 6. Eligibility Roadmap Progress & Quick Actions Hub */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left 2 Cols: Eligibility Roadmap Progress */}
-        <div className="lg:col-span-2 p-6 rounded-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                <span>🗺️</span> {t('nationalRoadmap')}
-              </h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                {t('roadmapSubtitle')}
-              </p>
-            </div>
-            <Link
-              to="/eligibility-roadmap"
-              className="text-xs font-semibold text-blue-700 dark:text-blue-400 hover:underline"
-            >
-              {t('fullDetails')} →
-            </Link>
-          </div>
+            {loading ? (
+              <LoadingSkeleton rows={3} />
+            ) : issues.length === 0 ? (
+              <EmptyState
+                title="No community issues yet"
+                description="Start by reporting an issue or analyzing a civic problem with Community Sahayak."
+                action={
+                  <Button size="sm" onClick={() => navigate('/community')}>
+                    Report First Issue
+                  </Button>
+                }
+              />
+            ) : (
+              <div className="divide-y divide-slate-100 dark:divide-slate-800">
+                {issues.slice(0, 4).map((issue) => (
+                  <div key={issue.id} className="py-3 flex items-start justify-between gap-3 text-xs">
+                    <div className="space-y-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-slate-900 dark:text-slate-100 truncate">
+                          {issue.title}
+                        </span>
+                        <Badge
+                          variant={
+                            issue.priority === 'Critical'
+                              ? 'danger'
+                              : issue.priority === 'High'
+                              ? 'warning'
+                              : 'secondary'
+                          }
+                        >
+                          {issue.priority}
+                        </Badge>
+                        <Badge
+                          variant={
+                            issue.status === 'Resolved'
+                              ? 'success'
+                              : issue.status === 'In Progress'
+                              ? 'warning'
+                              : 'primary'
+                          }
+                        >
+                          {issue.status}
+                        </Badge>
+                      </div>
+                      <p className="text-slate-600 dark:text-slate-400 line-clamp-1">
+                        {issue.description}
+                      </p>
+                      <div className="text-[11px] text-slate-500 flex items-center gap-2">
+                        <span>{issue.location}</span>
+                        <span>•</span>
+                        <span>{new Date(issue.created_at).toLocaleDateString()}</span>
+                      </div>
+                    </div>
 
-          {/* Progress Bar */}
-          <div className="space-y-1.5">
-            <div className="flex justify-between text-xs font-medium text-slate-700 dark:text-slate-300">
-              <span>{t('milestoneCompletion')}</span>
-              <span className="text-[#0B3B60] dark:text-blue-400 font-bold">{stats.roadmapCompleted} of {stats.roadmapTotal} {t('stagesDone')} ({roadmapPercentage}%)</span>
-            </div>
-            <div className="w-full h-2 rounded-sm bg-slate-200 dark:bg-slate-700 overflow-hidden">
-              <div
-                className="h-full rounded-sm bg-blue-600 transition-all duration-300"
-                style={{ width: `${roadmapPercentage}%` }}
-              ></div>
-            </div>
-          </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="shrink-0"
+                      onClick={() =>
+                        navigate('/problem-analyzer', {
+                          state: { problemText: `${issue.title}: ${issue.description}` }
+                        })
+                      }
+                    >
+                      <Bot className="w-3.5 h-3.5 mr-1 text-blue-600" />
+                      <span>Analyze</span>
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </Card>
 
-          {/* Step Timeline */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
-            <div className="p-3 rounded-md bg-emerald-50/70 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800/40">
-              <div className="text-[10px] font-bold text-emerald-800 dark:text-emerald-400 uppercase">
-                {t('step1Title')}
+          {/* AI Insights Banner */}
+          <Card className="bg-blue-50/40 dark:bg-blue-950/20 border-blue-200 dark:border-blue-900">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2 text-xs font-bold text-[#0B3B60] dark:text-blue-300">
+                  <Sparkles className="w-4 h-4 text-blue-600" />
+                  <span>AI Insight: Municipal Waste & Sanitation Pattern</span>
+                </div>
+                <p className="text-xs text-slate-700 dark:text-slate-300 max-w-xl leading-relaxed">
+                  Waste collection delays represent the most frequently reported concern this month.
+                  Our diagnostic engine has prepared 3 synchronized intervention protocols ready for implementation.
+                </p>
               </div>
-              <div className="text-xs font-medium text-slate-900 dark:text-white mt-1">
-                {t('step1Desc')}
-              </div>
-            </div>
 
-            <div className="p-3 rounded-md bg-emerald-50/70 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800/40">
-              <div className="text-[10px] font-bold text-emerald-800 dark:text-emerald-400 uppercase">
-                {t('step2Title')}
-              </div>
-              <div className="text-xs font-medium text-slate-900 dark:text-white mt-1">
-                {t('step2Desc')}
-              </div>
+              <Button
+                size="sm"
+                variant="primary"
+                className="shrink-0"
+                onClick={() =>
+                  navigate('/problem-analyzer', {
+                    state: {
+                      problemText: 'Our community is facing frequent waste collection delays causing roadside dumps.'
+                    }
+                  })
+                }
+              >
+                <span>Run Diagnostic</span>
+                <ArrowRight className="w-3.5 h-3.5 ml-1" />
+              </Button>
             </div>
-
-            <div className="p-3 rounded-md bg-blue-50/70 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800/40">
-              <div className="text-[10px] font-bold text-[#0B3B60] dark:text-blue-400 uppercase">
-                {t('step3Title')}
-              </div>
-              <div className="text-xs font-medium text-slate-900 dark:text-white mt-1">
-                {t('step3Desc')}
-              </div>
-            </div>
-          </div>
+          </Card>
         </div>
 
-        {/* Right 1 Col: Quick India Stack Actions */}
-        <div className="p-6 rounded-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between space-y-4">
-          <div>
-            <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
-              <span>⚡</span> {t('quickActions')}
-            </h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-              {t('quickActionsSubtitle')}
-            </p>
-          </div>
+        {/* Right Column (4 cols): Community Activity & Recent AI Conversations */}
+        <div className="lg:col-span-4 space-y-6">
+          {/* Community Activity Timeline */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between w-full">
+                <div className="flex items-center gap-2">
+                  <ActivityIcon className="w-4 h-4 text-[#0B3B60] dark:text-blue-400" />
+                  <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100">
+                    Community Activity
+                  </h2>
+                </div>
+                <Link
+                  to="/activity"
+                  className="text-xs text-blue-600 dark:text-blue-400 hover:underline font-semibold"
+                >
+                  View All
+                </Link>
+              </div>
+            </CardHeader>
 
-          <div className="space-y-2">
-            <Link
-              to="/scheme-matching"
-              className="w-full flex items-center justify-between p-2.5 rounded-md border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors text-xs font-semibold text-slate-700 dark:text-slate-200 text-decoration-none"
-            >
-              <span className="flex items-center gap-2">
-                <span>🎯</span> {t('aiSchemeMatcher')}
-              </span>
-              <span>→</span>
-            </Link>
+            {loading ? (
+              <LoadingSkeleton rows={4} />
+            ) : activities.length === 0 ? (
+              <p className="text-xs text-slate-500 py-4 text-center">No recent activity recorded.</p>
+            ) : (
+              <div className="space-y-3.5 text-xs">
+                {activities.slice(0, 5).map((act) => (
+                  <div key={act.id} className="flex items-start gap-2.5">
+                    <div className="w-2 h-2 rounded-full bg-blue-600 mt-1.5 shrink-0"></div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-slate-800 dark:text-slate-200 font-medium leading-snug">
+                        {act.description}
+                      </div>
+                      <div className="text-[10px] text-slate-400 font-mono mt-0.5">
+                        {new Date(act.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • {act.user_name}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </Card>
 
-            <Link
-              to="/documents"
-              className="w-full flex items-center justify-between p-2.5 rounded-md border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors text-xs font-semibold text-slate-700 dark:text-slate-200 text-decoration-none"
-            >
-              <span className="flex items-center gap-2">
-                <span>📄</span> {t('uploadDigiLocker')}
-              </span>
-              <span>→</span>
-            </Link>
+          {/* Recent AI Conversations */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between w-full">
+                <div className="flex items-center gap-2">
+                  <Bot className="w-4 h-4 text-purple-600" />
+                  <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100">
+                    Recent Conversations
+                  </h2>
+                </div>
+                <Link
+                  to="/ai-assistant"
+                  className="text-xs text-blue-600 dark:text-blue-400 hover:underline font-semibold"
+                >
+                  Open Chat
+                </Link>
+              </div>
+            </CardHeader>
 
-            <Link
-              to="/credit-score"
-              className="w-full flex items-center justify-between p-2.5 rounded-md border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors text-xs font-semibold text-slate-700 dark:text-slate-200 text-decoration-none"
-            >
-              <span className="flex items-center gap-2">
-                <span>💳</span> {t('creditScorecard')}
-              </span>
-              <span>→</span>
-            </Link>
-
-            <Link
-              to="/msme-connect"
-              className="w-full flex items-center justify-between p-2.5 rounded-md border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors text-xs font-semibold text-slate-700 dark:text-slate-200 text-decoration-none"
-            >
-              <span className="flex items-center gap-2">
-                <span>🤝</span> {t('b2bTitle')}
-              </span>
-              <span>→</span>
-            </Link>
-          </div>
-
-          <div className="p-3 rounded-md bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-[11px] text-slate-600 dark:text-slate-400 leading-snug">
-            💡 <span className="font-semibold text-slate-800 dark:text-slate-200">{t('judgeTip')}</span>
-          </div>
+            {recentChats.length === 0 ? (
+              <div className="text-xs text-slate-500 py-3 text-center">
+                <p>No recent conversations yet.</p>
+                <button
+                  onClick={() => navigate('/ai-assistant')}
+                  className="text-blue-600 dark:text-blue-400 underline font-semibold mt-1 inline-block"
+                >
+                  Start your first chat
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-2.5 text-xs">
+                {recentChats.slice(0, 3).map((chat) => (
+                  <div
+                    key={chat.id}
+                    onClick={() => navigate('/ai-assistant')}
+                    className="p-2.5 rounded bg-slate-50 dark:bg-slate-850 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer transition-colors border border-slate-200 dark:border-slate-800"
+                  >
+                    <div className="font-semibold text-slate-900 dark:text-slate-100 line-clamp-1">
+                      "{chat.user_message}"
+                    </div>
+                    <div className="text-[11px] text-slate-500 mt-1 line-clamp-1">
+                      {chat.ai_response.replace(/###/g, '').slice(0, 80)}...
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </Card>
         </div>
       </div>
     </div>
   );
-}
+};
+
+export default Dashboard;
 

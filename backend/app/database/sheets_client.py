@@ -7,7 +7,13 @@ import gspread
 from google.oauth2.service_account import Credentials
 
 from app.config import settings
-from app.database.seed_data import INITIAL_SCHEMES
+from app.database.seed_data import (
+    INITIAL_SCHEMES,
+    INITIAL_COMMUNITY_ISSUES,
+    INITIAL_COMMUNITY_DISCUSSIONS,
+    INITIAL_COMMUNITY_ANNOUNCEMENTS,
+    INITIAL_COMMUNITY_ACTIVITIES,
+)
 
 logger = logging.getLogger("GoogleSheetsDB")
 logging.basicConfig(level=logging.INFO)
@@ -51,6 +57,29 @@ TABLE_SCHEMAS: Dict[str, List[str]] = {
     "stacking_checks": [
         "id", "user_id", "is_stackable", "status", "total_potential_benefit",
         "selected_schemes", "conflict_notes", "recommendations", "created_at"
+    ],
+    "community_issues": [
+        "id", "title", "description", "category", "location", "priority",
+        "status", "created_by", "created_at", "updated_at"
+    ],
+    "community_discussions": [
+        "id", "title", "content", "category", "author", "replies_count", "created_at"
+    ],
+    "community_announcements": [
+        "id", "title", "body", "audience", "category", "created_at"
+    ],
+    "community_activities": [
+        "id", "type", "description", "user_name", "timestamp", "metadata_json"
+    ],
+    "ai_analyses": [
+        "id", "user_id", "problem_title", "summary", "causes", "affected_groups",
+        "severity", "recommended_actions", "created_at"
+    ],
+    "ai_solutions": [
+        "id", "user_id", "problem_id", "solutions_json", "selected_solution_id", "created_at"
+    ],
+    "ai_chats": [
+        "id", "user_id", "session_id", "role", "message", "timestamp"
     ]
 }
 
@@ -95,7 +124,15 @@ class GoogleSheetsDatabase:
         # Seed initial schemes if empty
         if not self.cached_tables.get("schemes"):
             self.cached_tables["schemes"] = [s.copy() for s in INITIAL_SCHEMES]
-            self._save_local_db()
+        if not self.cached_tables.get("community_issues"):
+            self.cached_tables["community_issues"] = [s.copy() for s in INITIAL_COMMUNITY_ISSUES]
+        if not self.cached_tables.get("community_discussions"):
+            self.cached_tables["community_discussions"] = [s.copy() for s in INITIAL_COMMUNITY_DISCUSSIONS]
+        if not self.cached_tables.get("community_announcements"):
+            self.cached_tables["community_announcements"] = [s.copy() for s in INITIAL_COMMUNITY_ANNOUNCEMENTS]
+        if not self.cached_tables.get("community_activities"):
+            self.cached_tables["community_activities"] = [s.copy() for s in INITIAL_COMMUNITY_ACTIVITIES]
+        self._save_local_db()
 
     def _save_local_db(self):
         """Persists current in-memory data to local JSON file"""

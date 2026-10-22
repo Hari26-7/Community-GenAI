@@ -1439,5 +1439,147 @@
       "message": "I am Sahayak AI, your guide for government schemes and financing. Ask me about schemes, eligibility, documents, or credit readiness!",
       "id": "saha_33219aa9"
     }
-  ]
+  ],
+  "community_issues": [
+    {
+      "id": "iss-001",
+      "title": "Frequent waste collection delays in Ward 7 & Market Area",
+      "description": "Garbage trucks have been skipping Tuesday & Friday collection cycles, leading to overflow around the central produce market and residential lanes.",
+      "category": "Sanitation & Waste",
+      "location": "Ward 7, North Market Block",
+      "priority": "High",
+      "status": "In Progress",
+      "created_by": "Ramesh Kumar",
+      "created_at": "2026-10-20T09:30:00Z",
+      "updated_at": "2026-10-21T14:15:00Z"
+    },
+    {
+      "id": "iss-002",
+      "title": "Street light outage near Community Primary Health Center",
+      "description": "Four sequential street poles along Health Center Road have non-functioning sodium vapor lamps, causing safety hazards for night clinic visitors.",
+      "category": "Infrastructure & Energy",
+      "location": "Health Center Road, Sector 3",
+      "priority": "Medium",
+      "status": "Open",
+      "created_by": "Ananya Sharma",
+      "created_at": "2026-10-21T11:45:00Z",
+      "updated_at": "2026-10-21T11:45:00Z"
+    },
+    {
+      "id": "iss-003",
+      "title": "Potable water supply pressure drop in Cooperative Housing Colony",
+      "description": "Morning municipal pipeline delivery pressure dropped by 60% after recent underground cable trenching works.",
+      "category": "Water Supply",
+      "location": "Cooperative Colony Block B",
+      "priority": "Critical",
+      "status": "Open",
+      "created_by": "Karthik Rajan",
+      "created_at": "2026-10-22T07:15:00Z",
+      "updated_at": "2026-10-22T08:00:00Z"
+    },
+    {
+      "id": "iss-004",
+      "title": "Potholes and drainage overflow along Main Bazaar Road",
+      "description": "Monsoon runoff caused localized drainage blockage near the agricultural input stores, leading to stagnant water pooling.",
+      "category": "Civic Works",
+      "location": "Main Bazaar Road",
+      "priority": "Medium",
+      "status": "Resolved",
+      "created_by": "Deepak Patel",
+      "created_at": "2026-10-18T16:20:00Z",
+      "updated_at": "2026-10-20T17:30:00Z"
+    }
+  ],
+  "community_discussions": [
+    {
+      "id": "disc-001",
+      "title": "Organizing weekend volunteer cleanup drive for Central Community Park",
+      "content": "Looking to assemble 25-30 community volunteers this Saturday morning from 7 AM to 10 AM. Gloves, garbage bags, and compost sorting bins will be provided.",
+      "category": "Volunteering",
+      "author": "Ananya Sharma",
+      "replies_count": 14,
+      "created_at": "2026-10-21T10:00:00Z"
+    },
+    {
+      "id": "disc-002",
+      "title": "Solar micro-grid feasibility for local dairy cooperative & cold chain",
+      "content": "We are evaluating rooftop solar plus battery backup to ensure uninterrupted milk chilling during summer power cuts. Has any neighboring SHG implemented PM-KUSUM or NABARD solar subsidies?",
+      "category": "Clean Energy",
+      "author": "Ramesh Kumar",
+      "replies_count": 9,
+      "created_at": "2026-10-20T14:30:00Z"
+    },
+    {
+      "id": "disc-003",
+      "title": "Setting up a decentralized vermicomposting pit for vegetable market waste",
+      "content": "Proposed plan to divert 300kg of daily vegetable market trimmings into organic vermicompost to sell to local nursery growers.",
+      "category": "Sustainability",
+      "author": "Priya Sundaram",
+      "replies_count": 6,
+      "created_at": "2026-10-19T11:15:00Z"
+    }
+  ],
+  "community_announcements": [
+    {
+      "id": "ann-001",
+      "title": "Free Health Checkup and Aadhaar Verification Camp this Saturday",
+      "body": "The Community Primary Health Center in partnership with District e-Seva is hosting a free multi-specialty screening and Aadhaar biometric update camp on Saturday, Oct 25 from 9:00 AM to 4:00 PM.",
+      "audience": "All Residents",
+      "category": "Public Health",
+      "created_at": "2026-10-21T09:00:00Z"
+    },
+    {
+      "id": "ann-002",
+      "title": "Municipal Water Pipeline Maintenance Schedule for Sector 3 & 4",
+      "body": "Please be advised that municipal water supply will operate on a modified morning-only schedule on Thursday while scheduled pipe joint replacements are executed.",
+      "audience": "Residents & MSMEs",
+      "category": "Civic Works",
+      "created_at": "2026-10-20T15:00:00Z"
+    }
+  ],
+  "community_activities": [
+    {
+      "id": "act-001",
+      "type": "issue_status_changed",
+      "description": "Issue 'Frequent waste collection delays' status updated to In Progress",
+      "user_name": "Ramesh Kumar",
+      "timestamp": "2026-10-22T15:30:00Z",
+      "metadata_json": "{\"issue_id\":\"iss-001\",\"status\":\"In Progress\"}"
+    },
+    {
+      "id": "act-002",
+      "type": "ai_problem_analyzed",
+      "description": "AI analyzed community problem: 'Decentralized Composting for Market Waste'",
+      "user_name": "Community Sahayak AI",
+      "timestamp": "2026-10-22T14:10:00Z",
+      "metadata_json": "{\"category\":\"Sanitation\"}"
+    },
+    {
+      "id": "act-003",
+      "type": "ai_solution_generated",
+      "description": "AI generated 3 practical solutions for 'Rural Micro-Cold Storage Feasibility'",
+      "user_name": "Community Sahayak AI",
+      "timestamp": "2026-10-22T11:45:00Z",
+      "metadata_json": "{\"options_count\":3}"
+    },
+    {
+      "id": "act-004",
+      "type": "announcement_published",
+      "description": "Announcement published: 'Free Health Checkup and Aadhaar Camp'",
+      "user_name": "Health Center Committee",
+      "timestamp": "2026-10-21T09:00:00Z",
+      "metadata_json": "{\"ann_id\":\"ann-001\"}"
+    },
+    {
+      "id": "act-005",
+      "type": "member_joined",
+      "description": "New Community Member registered: Ramesh Kumar",
+      "user_name": "System",
+      "timestamp": "2026-10-20T10:15:00Z",
+      "metadata_json": "{\"role\":\"Community Leader\"}"
+    }
+  ],
+  "ai_analyses": [],
+  "ai_solutions": [],
+  "ai_chats": []
 }

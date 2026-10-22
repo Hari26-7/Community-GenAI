@@ -319,3 +319,163 @@ export const faceVerificationService = {
     return await res.json();
   },
 };
+
+// 10. Community Service
+export const communityService = {
+  async getIssues(params?: { status?: string; category?: string; q?: string }) {
+    const query = new URLSearchParams();
+    if (params?.status) query.set('status', params.status);
+    if (params?.category) query.set('category', params.category);
+    if (params?.q) query.set('q', params.q);
+    const qs = query.toString() ? `?${query.toString()}` : '';
+    return await safeFetchJson(`${API_BASE}/community/issues${qs}`, undefined, []);
+  },
+
+  async createIssue(data: { title: string; description: string; category?: string; location?: string; priority?: string; created_by?: string }) {
+    const res = await fetch(`${API_BASE}/community/issues`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) throw new Error('Failed to create issue');
+    return await res.json();
+  },
+
+  async updateIssue(issueId: string, data: { status?: string; priority?: string; title?: string; description?: string }) {
+    const res = await fetch(`${API_BASE}/community/issues/${issueId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) throw new Error('Failed to update issue');
+    return await res.json();
+  },
+
+  async getDiscussions() {
+    return await safeFetchJson(`${API_BASE}/community/discussions`, undefined, []);
+  },
+
+  async createDiscussion(data: { title: string; content: string; category?: string; author?: string }) {
+    const res = await fetch(`${API_BASE}/community/discussions`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) throw new Error('Failed to create discussion');
+    return await res.json();
+  },
+
+  async getAnnouncements() {
+    return await safeFetchJson(`${API_BASE}/community/announcements`, undefined, []);
+  },
+
+  async createAnnouncement(data: { title: string; body: string; audience?: string; category?: string }) {
+    const res = await fetch(`${API_BASE}/community/announcements`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) throw new Error('Failed to post announcement');
+    return await res.json();
+  },
+
+  async getActivity(limit: number = 30) {
+    return await safeFetchJson(`${API_BASE}/community/activity?limit=${limit}`, undefined, []);
+  },
+
+  async getAnalytics() {
+    return await safeFetchJson(`${API_BASE}/community/analytics`, undefined, {
+      total_issues: 0,
+      open_issues: 0,
+      in_progress_issues: 0,
+      resolved_issues: 0,
+      total_discussions: 0,
+      total_announcements: 0,
+      total_members: 0,
+      ai_assistance_count: 0,
+      category_breakdown: {},
+      priority_breakdown: {}
+    });
+  }
+};
+
+// 11. AI Assistant & Copilot Service
+export const aiService = {
+  async sendMessage(message: string, conversationId?: string, userName?: string) {
+    const res = await fetch(`${API_BASE}/ai/chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        message,
+        conversation_id: conversationId,
+        user_name: userName || 'Community Leader'
+      }),
+    });
+    if (!res.ok) throw new Error('AI assistant response error');
+    return await res.json();
+  },
+
+  async analyzeProblem(data: {
+    title: string;
+    description: string;
+    category?: string;
+    location?: string;
+    priority?: string;
+    supporting_info?: string;
+    user_name?: string;
+  }) {
+    const res = await fetch(`${API_BASE}/ai/analyze`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) throw new Error('Failed to analyze problem');
+    return await res.json();
+  },
+
+  async generateSolutions(data: {
+    problem_title: string;
+    problem_description: string;
+    community_context?: string;
+    available_resources?: string;
+    constraints?: string;
+    expected_outcome?: string;
+    user_name?: string;
+  }) {
+    const res = await fetch(`${API_BASE}/ai/solutions`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) throw new Error('Failed to generate solutions');
+    return await res.json();
+  },
+
+  async generateAnnouncement(data: {
+    purpose: string;
+    audience?: string;
+    tone?: string;
+    key_information: string;
+    language?: string;
+    user_name?: string;
+  }) {
+    const res = await fetch(`${API_BASE}/ai/announcement`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) throw new Error('Failed to generate announcement');
+    return await res.json();
+  },
+
+  async getHistory(limit: number = 30) {
+    return await safeFetchJson(`${API_BASE}/ai/history?limit=${limit}`, undefined, []);
+  },
+
+  async clearHistory() {
+    const res = await fetch(`${API_BASE}/ai/history`, { method: 'DELETE' });
+    if (!res.ok) throw new Error('Failed to clear AI history');
+    return await res.json();
+  }
+};
+

@@ -7,12 +7,13 @@ from app.config import settings
 from app.database import db
 from app.routers import (
     auth, profiles, schemes, stacking, applications,
-    documents, credit, roadmap, notifications, face, sheets, supabase_compat
+    documents, credit, roadmap, notifications, face, sheets, supabase_compat,
+    community, ai
 )
 
 app = FastAPI(
-    title=settings.APP_NAME,
-    description="Python Backend for Smart India Hackathon (SIH) MSME Sahayak AI with Google Sheets Database",
+    title="Community Sahayak AI Backend",
+    description="Python Backend for Community Sahayak AI - Intelligent Community Development Platform",
     version="1.0.0",
     docs_url="/docs",
     redoc_url="/redoc"
@@ -34,6 +35,8 @@ app.mount("/uploads", StaticFiles(directory=settings.UPLOAD_DIR), name="uploads"
 app.include_router(supabase_compat.router)
 
 # Mount API Routers
+app.include_router(community.router, prefix=settings.API_PREFIX)
+app.include_router(ai.router, prefix=settings.API_PREFIX)
 app.include_router(auth.router, prefix=settings.API_PREFIX)
 app.include_router(profiles.router, prefix=settings.API_PREFIX)
 app.include_router(schemes.router, prefix=settings.API_PREFIX)
