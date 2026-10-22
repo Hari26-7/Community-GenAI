@@ -441,7 +441,7 @@ export default function CreditScore() {
           <button
             type="submit"
             disabled={saving}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3.5 px-6 rounded-xl shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 text-base"
+            className="w-full bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold py-2.5 px-6 rounded-md shadow-sm transition-colors flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 text-sm"
           >
             <span>💾</span>
             <span>{saving ? 'Syncing with Banking Gateway...' : 'Save & Update Financial Health Profile'}</span>
@@ -450,7 +450,7 @@ export default function CreditScore() {
       </form>
 
       {toast && (
-        <div className="fixed bottom-6 left-6 z-50 p-3.5 rounded-xl bg-slate-900 text-white text-xs font-bold shadow-2xl border border-slate-700">
+        <div className="fixed bottom-6 left-6 z-50 p-3.5 rounded-md bg-slate-900 text-white text-xs font-bold shadow-sm border border-slate-700">
           {toast.msg}
         </div>
       )}

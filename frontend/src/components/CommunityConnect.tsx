@@ -102,19 +102,20 @@ export const CommunityConnect: React.FC<{ compact?: boolean }> = ({ compact = fa
   return (
     <div className="space-y-6">
       {/* Toast Notification */}
+      {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed top-20 right-6 z-50 bg-slate-900 text-white px-4 py-3 rounded-lg shadow-xl border border-blue-500/50 flex items-center gap-3 animate-in fade-in slide-in-from-top-4">
+        <div className="fixed top-20 right-6 z-50 bg-slate-900 text-white px-4 py-3 rounded-md shadow-sm border border-slate-700 flex items-center gap-3">
           <span className="text-xl">🤝</span>
           <div className="text-xs font-medium">{toastMessage}</div>
         </div>
       )}
 
       {/* Header Banner */}
-      <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 p-6 shadow-sm">
+      <div className="bg-white dark:bg-slate-900 rounded-md border border-slate-200 dark:border-slate-800 p-6 shadow-sm">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2">
             <div className="flex items-center gap-2">
-              <span className="bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold px-2.5 py-0.5 rounded-full text-xs">
+              <span className="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold px-2.5 py-0.5 rounded-md text-xs border border-slate-300 dark:border-slate-700">
                 🌾 Rural Economic Clusters
               </span>
               <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
@@ -130,7 +131,7 @@ export const CommunityConnect: React.FC<{ compact?: boolean }> = ({ compact = fa
           </div>
 
           {/* Quick Metrics */}
-          <div className="flex items-center gap-5 bg-slate-50 dark:bg-slate-800/80 p-4 rounded-lg border border-slate-200 dark:border-slate-700 shrink-0">
+          <div className="flex items-center gap-5 bg-slate-50 dark:bg-slate-800/80 p-4 rounded-md border border-slate-200 dark:border-slate-700 shrink-0">
             <div>
               <div className="text-2xl font-bold text-slate-900 dark:text-white">
                 3
@@ -160,7 +161,7 @@ export const CommunityConnect: React.FC<{ compact?: boolean }> = ({ compact = fa
           </div>
         </div>
 
-        {/* Filter Pills */}
+        {/* Filter Controls */}
         <div className="flex items-center gap-2 pt-5 border-t border-slate-100 dark:border-slate-800 mt-5 overflow-x-auto">
           <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 mr-2 shrink-0">
             Cluster Filter:
@@ -176,10 +177,10 @@ export const CommunityConnect: React.FC<{ compact?: boolean }> = ({ compact = fa
             <button
               key={item.id}
               onClick={() => setFilter(item.id)}
-              className={`px-3 py-1 text-xs font-medium rounded-full transition-colors shrink-0 ${
+              className={`px-3 py-1 text-xs font-medium rounded-md transition-colors shrink-0 ${
                 filter === item.id
                   ? 'bg-[#0B3B60] text-white dark:bg-blue-600'
-                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'
               }`}
             >
               {item.label}
@@ -197,13 +198,13 @@ export const CommunityConnect: React.FC<{ compact?: boolean }> = ({ compact = fa
           return (
             <div
               key={entity.id}
-              className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200"
+              className="bg-white dark:bg-slate-900 rounded-md border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between hover:border-slate-300 dark:hover:border-slate-700 transition-colors"
             >
               <div className="p-5 space-y-4">
                 {/* Header: Tag & AI Synergy Score */}
                 <div className="flex items-start justify-between gap-3">
                   <div className="space-y-1">
-                    <span className="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-purple-50 dark:bg-purple-950/50 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
+                    <span className="inline-block px-2.5 py-0.5 rounded-md text-[11px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
                       {entity.tag}
                     </span>
                     <h3 className="text-base font-bold text-slate-900 dark:text-white leading-tight">
@@ -213,11 +214,11 @@ export const CommunityConnect: React.FC<{ compact?: boolean }> = ({ compact = fa
 
                   {/* AI Synergy Match Badge */}
                   <div className="flex flex-col items-end shrink-0">
-                    <div className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-700 text-emerald-800 dark:text-emerald-300 font-bold text-xs shadow-xs">
-                      <span>✨</span>
+                    <div className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-700 text-emerald-800 dark:text-emerald-300 font-bold text-xs">
+                      <span>✓</span>
                       <span>{entity.aiSynergyScore}% Match</span>
                     </div>
-                    <span className="text-[10px] text-slate-400 mt-0.5">GenAI Synergy</span>
+                    <span className="text-[10px] text-slate-400 mt-0.5">Cluster Compatibility</span>
                   </div>
                 </div>
 

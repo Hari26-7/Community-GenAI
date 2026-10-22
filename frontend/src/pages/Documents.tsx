@@ -477,7 +477,7 @@ export default function Documents() {
               ) : verificationResult.status === 'verified' ? (
                 /* Successful verification state */
                 <div className="flex flex-col items-center justify-center text-center p-6 space-y-2">
-                  <div className="w-16 h-16 rounded-full bg-emerald-500/20 border-2 border-emerald-400 text-emerald-400 flex items-center justify-center text-2xl font-black shadow-lg">
+                  <div className="w-16 h-16 rounded-md bg-emerald-500/20 border-2 border-emerald-400 text-emerald-400 flex items-center justify-center text-2xl font-black shadow-sm">
                     ✓
                   </div>
                   <div className="text-base font-bold text-white">Identity Confirmed</div>
@@ -518,14 +518,14 @@ export default function Documents() {
                 <div className="flex gap-3">
                   <button
                     onClick={capturePhotoAndVerify}
-                    className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 px-6 rounded-xl shadow-md flex items-center justify-center gap-2 transition-all cursor-pointer"
+                    className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2.5 px-6 rounded-md shadow-sm flex items-center justify-center gap-2 transition-colors cursor-pointer text-sm"
                   >
                     <span>📸</span>
                     <span>Capture &amp; Verify Identity</span>
                   </button>
                   <button
                     onClick={stopCamera}
-                    className="px-4 py-3 bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 font-semibold rounded-xl text-xs transition"
+                    className="px-4 py-2.5 bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 font-semibold rounded-md text-xs transition-colors"
                   >
                     Cancel
                   </button>
@@ -533,7 +533,7 @@ export default function Documents() {
               ) : (
                 <button
                   onClick={startCamera}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-xl shadow-md hover:shadow-lg flex items-center justify-center gap-2 transition-all cursor-pointer"
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-6 rounded-md shadow-sm flex items-center justify-center gap-2 transition-colors cursor-pointer text-sm"
                 >
                   <span>📷</span>
                   <span>
@@ -632,7 +632,7 @@ export default function Documents() {
           onClick={() => setPreviewDoc(null)}
         >
           <div
-            className="w-full max-w-md bg-white dark:bg-slate-900 rounded-md shadow-lg border border-slate-300 dark:border-slate-700 p-6 space-y-4"
+            className="w-full max-w-md bg-white dark:bg-slate-900 rounded-md shadow-sm border border-slate-300 dark:border-slate-700 p-6 space-y-4"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
@@ -679,7 +679,7 @@ export default function Documents() {
       )}
 
       {toast && (
-        <div className="fixed bottom-20 md:bottom-6 left-4 md:left-6 z-50 p-3.5 rounded-xl bg-slate-900 text-white text-xs font-bold shadow-2xl border border-slate-700">
+        <div className="fixed bottom-20 md:bottom-6 left-4 md:left-6 z-50 p-3.5 rounded-md bg-slate-900 text-white text-xs font-bold shadow-sm border border-slate-700">
           {toast.msg}
         </div>
       )}

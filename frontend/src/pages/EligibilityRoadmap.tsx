@@ -283,7 +283,7 @@ export default function EligibilityRoadmap() {
       </div>
 
       {toast && (
-        <div className="fixed bottom-20 md:bottom-6 left-4 md:left-6 z-50 p-3 rounded-xl bg-slate-900 text-white text-xs font-bold shadow-2xl border border-slate-700">
+        <div className="fixed bottom-20 md:bottom-6 left-4 md:left-6 z-50 p-3 rounded-md bg-slate-900 text-white text-xs font-bold shadow-sm border border-slate-700">
           {toast.msg}
         </div>
       )}

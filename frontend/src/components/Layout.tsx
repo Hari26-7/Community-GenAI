@@ -189,9 +189,10 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
 
           {/* Action Center */}
           <div className="flex items-center justify-end gap-2.5 shrink-0">
-            {/* GenAI Indicator Badge: glowing, animated right next to Voice Assistant */}
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 text-white shadow-md animate-pulse">
-              ✨ Powered by GenAI Copilot
+            {/* Enterprise AI Status Indicator */}
+            <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700">
+              <span className="w-2 h-2 rounded-full bg-blue-600"></span>
+              <span>AI Copilot Active</span>
             </span>
 
             {/* Header Voice Assistant Controls */}

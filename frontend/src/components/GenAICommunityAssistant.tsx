@@ -201,39 +201,36 @@ export const GenAICommunityAssistant: React.FC = () => {
   };
 
   return (
-    <div className="bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white rounded-xl border border-indigo-500/30 p-6 md:p-8 shadow-xl space-y-6 relative overflow-hidden">
-      {/* Background Decorative Blur Rings */}
-      <div className="absolute top-0 right-0 w-96 h-96 bg-purple-600/10 rounded-full blur-3xl pointer-events-none"></div>
-      <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none"></div>
-
-      {/* Header with Glowing GenAI Badges */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 relative z-10">
-        <div className="space-y-1">
+    <div className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 rounded-md border border-slate-200 dark:border-slate-800 p-6 shadow-sm space-y-6">
+      {/* Header with Enterprise Badges and Status */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="space-y-1.5">
           <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-purple-500 via-indigo-500 to-blue-500 text-white shadow-md">
-              ✨ Generative AI Engine v3.2
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700">
+              <span className="w-2 h-2 rounded-full bg-blue-600"></span>
+              <span>Proposal Synthesizer Engine v3.2</span>
             </span>
-            <span className="text-xs text-indigo-300 font-mono">Llama-3 & Gemini Pro Finetuned</span>
+            <span className="text-xs text-slate-500 dark:text-slate-400 font-mono">Enterprise Service</span>
           </div>
-          <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-white flex items-center gap-2">
-            <span>🤖</span> Generative AI Proposal & Scheme Assistant
+          <h2 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
+            <span>⚙️</span> Detailed Project Report (DPR) & Scheme Intelligence Console
           </h2>
-          <p className="text-xs sm:text-sm text-slate-300 max-w-2xl">
-            Simulate instant Detailed Project Reports (DPR), evaluate joint cooperative subsidy stacking, and generate vernacular grant proposals for rural economic clusters.
+          <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 max-w-2xl leading-relaxed">
+            Automate Detailed Project Reports (DPR), evaluate multi-grant stacking synergies, and format structured grant submissions for registered MSME clusters.
           </p>
         </div>
 
-        {/* Quick Copilot Status */}
-        <div className="flex items-center gap-2 bg-slate-800/80 border border-indigo-400/30 px-3.5 py-2 rounded-lg text-xs font-medium shrink-0">
-          <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
-          <span className="text-emerald-300 font-semibold">GenAI Copilot Online</span>
+        {/* Engine Status */}
+        <div className="flex items-center gap-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3 py-1.5 rounded-md text-xs font-medium shrink-0">
+          <span className="w-2 h-2 rounded-full bg-emerald-600"></span>
+          <span className="text-slate-700 dark:text-slate-300 font-semibold">Intelligence Engine Ready</span>
         </div>
       </div>
 
-      {/* Interactive Prompt Chips */}
-      <div className="space-y-2 relative z-10">
-        <div className="text-xs font-semibold text-indigo-200 uppercase tracking-wider flex items-center gap-1.5">
-          <span>⚡</span> Quick GenAI Action Prompts:
+      {/* Quick Action Prompt Controls */}
+      <div className="space-y-2">
+        <div className="text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+          <span>⚡</span> Quick Action Presets:
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           {PRESET_PROMPTS.map((p) => {
@@ -242,10 +239,10 @@ export const GenAICommunityAssistant: React.FC = () => {
               <button
                 key={p.id}
                 onClick={() => handleSelectPrompt(p.id)}
-                className={`text-left p-3.5 rounded-lg border text-xs font-medium transition-all duration-200 flex items-start gap-2.5 ${
+                className={`text-left p-3.5 rounded-md border text-xs font-medium transition-colors flex items-start gap-2.5 ${
                   isSelected
-                    ? 'bg-gradient-to-r from-indigo-600/40 to-purple-600/40 border-indigo-400 text-white shadow-lg ring-1 ring-indigo-400'
-                    : 'bg-slate-800/60 border-slate-700/80 text-slate-300 hover:bg-slate-800 hover:text-white hover:border-slate-600'
+                    ? 'bg-blue-50 dark:bg-blue-950/40 border-2 border-blue-600 text-blue-900 dark:text-blue-200 font-semibold'
+                    : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-750 hover:border-slate-300'
                 }`}
               >
                 <span className="text-base shrink-0">{p.icon}</span>
@@ -257,59 +254,54 @@ export const GenAICommunityAssistant: React.FC = () => {
       </div>
 
       {/* Custom Prompt Input Bar */}
-      <form onSubmit={handleCustomSubmit} className="relative z-10 flex gap-2">
+      <form onSubmit={handleCustomSubmit} className="flex gap-2">
         <div className="relative flex-1">
           <input
             type="text"
             value={customInput}
             onChange={(e) => setCustomInput(e.target.value)}
             placeholder="Type any cooperative grant query (e.g. 'Cold storage feasibility for 50 farmers under PMEGP')..."
-            className="w-full bg-slate-950/80 border border-slate-700 rounded-lg px-4 py-2.5 text-xs text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+            className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md px-3.5 py-2.5 text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition-colors"
           />
-          <span className="absolute right-3 top-2.5 text-slate-500 text-xs">💬 Natural Language</span>
+          <span className="absolute right-3 top-2.5 text-slate-400 text-xs">Natural Language Query</span>
         </div>
         <button
           type="submit"
           disabled={isGenerating}
-          className="px-4 py-2.5 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white text-xs font-semibold shadow-md transition-all shrink-0 flex items-center gap-1.5"
+          className="px-4 py-2.5 rounded-md bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-xs font-semibold transition-colors shrink-0 flex items-center gap-1.5"
         >
           {isGenerating ? (
             <>
               <span className="w-3.5 h-3.5 border-2 border-white/20 border-t-white rounded-full animate-spin"></span>
-              <span>Synthesizing...</span>
+              <span>Processing...</span>
             </>
           ) : (
             <>
-              <span>✨</span>
-              <span>Ask Copilot</span>
+              <span>🔍</span>
+              <span>Execute Analysis</span>
             </>
           )}
         </button>
       </form>
 
-      {/* AI Response Box: Terminal-style Card Preview */}
-      <div className="relative z-10 rounded-lg border border-indigo-500/40 bg-slate-950/90 shadow-2xl overflow-hidden">
-        {/* Terminal Window Header Bar */}
-        <div className="bg-slate-900/90 border-b border-indigo-500/30 px-4 py-2.5 flex items-center justify-between">
+      {/* AI Response Panel: Enterprise Report Console */}
+      <div className="rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 shadow-sm overflow-hidden">
+        {/* Console Header Bar */}
+        <div className="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-700 px-4 py-2.5 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="flex gap-1.5">
-              <span className="w-3 h-3 rounded-full bg-rose-500/80 inline-block"></span>
-              <span className="w-3 h-3 rounded-full bg-amber-500/80 inline-block"></span>
-              <span className="w-3 h-3 rounded-full bg-emerald-500/80 inline-block"></span>
-            </div>
-            <span className="text-[11px] font-mono text-indigo-300 ml-2">
-              genai-copilot://proposal-engine/{selectedPromptId}.json
+            <span className="font-mono text-xs text-slate-600 dark:text-slate-400">
+              dpr://feasibility-analysis/{selectedPromptId}.json
             </span>
           </div>
 
           <div className="flex items-center gap-2">
-            {/* Vernacular Voice Synthesis Triggers */}
-            <div className="flex items-center gap-1 bg-slate-800 px-2 py-0.5 rounded border border-slate-700 text-[11px]">
-              <span className="text-slate-400 mr-1">🔊 Voice:</span>
+            {/* Vernacular Voice Controls */}
+            <div className="flex items-center gap-1 bg-white dark:bg-slate-900 px-2 py-0.5 rounded-md border border-slate-300 dark:border-slate-700 text-xs">
+              <span className="text-slate-500 mr-1 text-[11px]">Audio:</span>
               <button
                 onClick={() => handleSpeak(activeData.vernacularSummary.en, 'en')}
-                className={`px-1.5 py-0.5 rounded font-semibold transition-colors ${
-                  speakingLang === 'en' ? 'bg-indigo-600 text-white animate-pulse' : 'text-slate-300 hover:text-white'
+                className={`px-1.5 py-0.5 rounded text-[11px] font-semibold transition-colors ${
+                  speakingLang === 'en' ? 'bg-blue-600 text-white' : 'text-slate-600 dark:text-slate-300 hover:text-slate-900'
                 }`}
                 title="Listen in English"
               >
@@ -317,8 +309,8 @@ export const GenAICommunityAssistant: React.FC = () => {
               </button>
               <button
                 onClick={() => handleSpeak(activeData.vernacularSummary.ta, 'ta')}
-                className={`px-1.5 py-0.5 rounded font-semibold transition-colors ${
-                  speakingLang === 'ta' ? 'bg-indigo-600 text-white animate-pulse' : 'text-slate-300 hover:text-white'
+                className={`px-1.5 py-0.5 rounded text-[11px] font-semibold transition-colors ${
+                  speakingLang === 'ta' ? 'bg-blue-600 text-white' : 'text-slate-600 dark:text-slate-300 hover:text-slate-900'
                 }`}
                 title="Listen in Tamil (தமிழ்)"
               >
@@ -326,8 +318,8 @@ export const GenAICommunityAssistant: React.FC = () => {
               </button>
               <button
                 onClick={() => handleSpeak(activeData.vernacularSummary.hi, 'hi')}
-                className={`px-1.5 py-0.5 rounded font-semibold transition-colors ${
-                  speakingLang === 'hi' ? 'bg-indigo-600 text-white animate-pulse' : 'text-slate-300 hover:text-white'
+                className={`px-1.5 py-0.5 rounded text-[11px] font-semibold transition-colors ${
+                  speakingLang === 'hi' ? 'bg-blue-600 text-white' : 'text-slate-600 dark:text-slate-300 hover:text-slate-900'
                 }`}
                 title="Listen in Hindi (हिन्दी)"
               >
@@ -338,90 +330,97 @@ export const GenAICommunityAssistant: React.FC = () => {
             {/* Copy Button */}
             <button
               onClick={handleCopy}
-              className="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-[11px] font-medium border border-slate-700 transition-colors flex items-center gap-1"
+              className="px-2.5 py-1 rounded-md bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-medium border border-slate-300 dark:border-slate-700 transition-colors flex items-center gap-1"
             >
-              <span>{copied ? '✓ Copied' : '📋 Copy'}</span>
+              <span>{copied ? '✓ Copied' : '📋 Copy Report'}</span>
             </button>
           </div>
         </div>
 
         {/* Content Body */}
         {isGenerating ? (
-          <div className="p-8 flex flex-col items-center justify-center space-y-3 min-h-[280px]">
-            <div className="w-10 h-10 border-4 border-indigo-500/20 border-t-indigo-400 rounded-full animate-spin"></div>
-            <div className="text-xs font-mono text-indigo-300 animate-pulse">
+          <div className="p-8 flex flex-col items-center justify-center space-y-3 min-h-[240px]">
+            <div className="w-8 h-8 border-3 border-blue-600/20 border-t-blue-600 rounded-full animate-spin"></div>
+            <div className="text-xs font-mono text-slate-500 dark:text-slate-400">
               Generating project report & calculating capital subsidy breakdown...
             </div>
           </div>
         ) : (
-          <div className="p-6 space-y-5 text-slate-200">
+          <div className="p-6 space-y-5 text-slate-800 dark:text-slate-200">
             {/* Title & Target Scheme */}
-            <div className="border-b border-slate-800 pb-3">
-              <span className="text-[11px] font-mono text-emerald-400 uppercase tracking-wide">
+            <div className="border-b border-slate-200 dark:border-slate-800 pb-3">
+              <span className="text-xs font-mono font-semibold text-blue-700 dark:text-blue-400 uppercase tracking-wide">
                 Target Scheme: {activeData.schemeTarget}
               </span>
-              <h3 className="text-lg font-bold text-white mt-1">{activeData.title}</h3>
+              <h3 className="text-base font-bold text-slate-900 dark:text-white mt-1">{activeData.title}</h3>
             </div>
 
             {/* Executive Summary */}
-            <div className="text-xs sm:text-sm text-slate-300 leading-relaxed bg-slate-900/60 p-3.5 rounded-lg border border-slate-800">
-              <span className="text-indigo-400 font-bold">Executive Feasibility: </span>
+            <div className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed bg-slate-50 dark:bg-slate-900/60 p-3.5 rounded-md border border-slate-200 dark:border-slate-800">
+              <span className="text-slate-900 dark:text-white font-bold">Executive Feasibility: </span>
               {activeData.executiveSummary}
             </div>
 
-            {/* Capital Expenditure (CapEx) & Financial Model */}
+            {/* Capital Expenditure (CapEx) Structured Data Table */}
             <div className="space-y-2">
-              <div className="text-xs font-bold text-indigo-300 uppercase tracking-wider flex items-center justify-between">
-                <span>💰 Capital Expenditure (CapEx) Breakdown</span>
-                <span className="text-white font-mono">Total: {activeData.totalCost}</span>
+              <div className="flex items-center justify-between text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                <span>CapEx Line Item Specification</span>
+                <span className="font-mono text-slate-900 dark:text-white font-semibold">Total Outlay: {activeData.totalCost}</span>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                {activeData.capex.map((item, idx) => (
-                  <div
-                    key={idx}
-                    className="p-3 rounded-lg bg-slate-900/80 border border-slate-800/80 space-y-1"
-                  >
-                    <div className="text-[11px] text-slate-400">{item.item}</div>
-                    <div className="text-sm font-bold text-white font-mono">{item.cost}</div>
-                  </div>
-                ))}
+              <div className="border border-slate-200 dark:border-slate-800 rounded-md overflow-hidden">
+                <table className="w-full text-left text-xs border-collapse">
+                  <thead>
+                    <tr className="bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 uppercase font-semibold">
+                      <th className="py-2.5 px-3">Component Item</th>
+                      <th className="py-2.5 px-3 text-right">Estimated Cost</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
+                    {activeData.capex.map((item, idx) => (
+                      <tr key={idx} className="hover:bg-slate-50/50 dark:hover:bg-slate-900/50 transition-colors">
+                        <td className="py-2.5 px-3 text-slate-700 dark:text-slate-300">{item.item}</td>
+                        <td className="py-2.5 px-3 text-right font-mono font-semibold text-slate-900 dark:text-white">{item.cost}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             </div>
 
             {/* Financial Means of Finance */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <div className="p-3 rounded-lg bg-emerald-950/40 border border-emerald-500/30">
-                <div className="text-[10px] uppercase font-bold text-emerald-400">Government Capital Subsidy</div>
-                <div className="text-base font-bold text-emerald-300 font-mono mt-0.5">
+              <div className="p-3.5 rounded-md bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+                <div className="text-[11px] uppercase font-bold text-slate-500 dark:text-slate-400">Government Capital Subsidy</div>
+                <div className="text-base font-bold text-emerald-700 dark:text-emerald-400 font-mono mt-0.5">
                   {activeData.subsidyBenefit}
                 </div>
               </div>
-              <div className="p-3 rounded-lg bg-blue-950/40 border border-blue-500/30">
-                <div className="text-[10px] uppercase font-bold text-blue-400">Bank Term Loan (JanSamarth)</div>
-                <div className="text-base font-bold text-blue-300 font-mono mt-0.5">
+              <div className="p-3.5 rounded-md bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+                <div className="text-[11px] uppercase font-bold text-slate-500 dark:text-slate-400">Bank Term Loan (JanSamarth)</div>
+                <div className="text-base font-bold text-blue-700 dark:text-blue-400 font-mono mt-0.5">
                   {activeData.bankLoan}
                 </div>
               </div>
-              <div className="p-3 rounded-lg bg-purple-950/40 border border-purple-500/30">
-                <div className="text-[10px] uppercase font-bold text-purple-400">SHG / Cooperative Equity</div>
-                <div className="text-base font-bold text-purple-300 font-mono mt-0.5">
+              <div className="p-3.5 rounded-md bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+                <div className="text-[11px] uppercase font-bold text-slate-500 dark:text-slate-400">SHG / Cooperative Equity</div>
+                <div className="text-base font-bold text-slate-900 dark:text-white font-mono mt-0.5">
                   {activeData.ownEquity}
                 </div>
               </div>
             </div>
 
             {/* Step-by-Step Approval Checklist */}
-            <div className="space-y-2 pt-2 border-t border-slate-800">
-              <div className="text-xs font-bold text-slate-300 uppercase tracking-wider">
-                📋 Step-by-Step Grant Approval & Document Checklist:
+            <div className="space-y-2 pt-2 border-t border-slate-200 dark:border-slate-800">
+              <div className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                Step-by-Step Grant Approval & Document Checklist:
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+              <div className="border border-slate-200 dark:border-slate-800 rounded-md divide-y divide-slate-200 dark:divide-slate-800 overflow-hidden bg-white dark:bg-slate-900">
                 {activeData.eligibilitySteps.map((step, idx) => (
                   <div
                     key={idx}
-                    className="flex items-start gap-2 p-2.5 rounded bg-slate-900/60 border border-slate-800 text-slate-300"
+                    className="flex items-start gap-2.5 p-2.5 text-xs text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
                   >
-                    <span className="text-emerald-400 font-bold shrink-0">{idx + 1}.</span>
+                    <span className="text-emerald-600 font-bold shrink-0">{idx + 1}.</span>
                     <span>{step}</span>
                   </div>
                 ))}
@@ -429,19 +428,19 @@ export const GenAICommunityAssistant: React.FC = () => {
             </div>
 
             {/* Multi-Grant Stacking Insight */}
-            <div className="p-3 rounded-lg bg-gradient-to-r from-purple-900/30 to-indigo-900/30 border border-purple-500/30 flex items-start gap-2.5 text-xs text-purple-200">
-              <span className="text-lg shrink-0">⚡</span>
+            <div className="p-3.5 rounded-md bg-blue-50/60 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800/80 flex items-start gap-2.5 text-xs text-blue-900 dark:text-blue-200">
+              <span className="text-base shrink-0">⚡</span>
               <div>
-                <span className="font-bold text-white">Multi-Grant Stacking Intelligence: </span>
+                <span className="font-bold">Multi-Grant Stacking Intelligence: </span>
                 {activeData.stackingInsight}
               </div>
             </div>
 
             {/* Vernacular Summary Trigger Box */}
-            <div className="p-3 rounded-lg bg-slate-900/90 border border-indigo-400/20 text-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div className="p-3 rounded-md bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
               <div className="flex items-center gap-2">
                 <span className="text-base">🎙️</span>
-                <span className="text-slate-300">
+                <span className="text-slate-600 dark:text-slate-300">
                   {language === 'ta'
                     ? activeData.vernacularSummary.ta
                     : language === 'hi'
@@ -460,7 +459,7 @@ export const GenAICommunityAssistant: React.FC = () => {
                     language
                   )
                 }
-                className="px-3 py-1.5 rounded bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs shrink-0 flex items-center gap-1.5 transition-colors"
+                className="px-3 py-1.5 rounded-md bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs shrink-0 flex items-center gap-1.5 transition-colors"
               >
                 <span>{speakingLang ? '⏹️ Stop Voice' : '🔊 Listen Voice'}</span>
               </button>

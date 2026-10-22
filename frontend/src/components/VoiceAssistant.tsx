@@ -85,7 +85,7 @@ export const VoiceAssistant: React.FC = () => {
       {/* Enterprise Docked Voice Control */}
       <div className="fixed bottom-6 right-6 z-40 flex flex-col items-end gap-2">
         {isOpen && (
-          <div className="w-[calc(100vw-2rem)] sm:w-80 p-4 rounded-md bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 shadow-md mb-2 space-y-3">
+          <div className="w-[calc(100vw-2rem)] sm:w-80 p-4 rounded-md bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 shadow-sm mb-2 space-y-3">
             <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2.5">
               <div className="flex items-center gap-2">
                 <div className="w-7 h-7 rounded-md bg-[#0B3B60] text-white flex items-center justify-center text-xs font-bold">

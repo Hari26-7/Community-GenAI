@@ -322,7 +322,7 @@ export default function Applications() {
           onClick={() => setViewApp(null)}
         >
           <div
-            className="w-full max-w-lg bg-white dark:bg-slate-900 rounded-md border border-slate-300 dark:border-slate-700 shadow-xl p-6 space-y-4 max-h-[85vh] overflow-y-auto"
+            className="w-full max-w-lg bg-white dark:bg-slate-900 rounded-md border border-slate-300 dark:border-slate-700 shadow-sm p-6 space-y-4 max-h-[85vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
@@ -374,7 +374,7 @@ export default function Applications() {
       {/* Toast Notification */}
       {toast && (
         <div
-          className={`fixed bottom-6 right-6 z-50 px-3.5 py-2.5 rounded-md shadow-md text-xs font-semibold flex items-center gap-2 ${
+          className={`fixed bottom-6 right-6 z-50 px-3.5 py-2.5 rounded-md shadow-sm text-xs font-semibold flex items-center gap-2 ${
             toast.type === 'success'
               ? 'bg-emerald-700 text-white'
               : 'bg-red-700 text-white'

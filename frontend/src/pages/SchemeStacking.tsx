@@ -583,7 +583,7 @@ export default function SchemeStacking() {
       )}
 
       {toast && (
-        <div className="fixed bottom-6 left-6 z-50 p-3 rounded-md bg-slate-900 text-white text-xs font-semibold shadow-md border border-slate-700">
+        <div className="fixed bottom-6 left-6 z-50 p-3 rounded-md bg-slate-900 text-white text-xs font-semibold shadow-sm border border-slate-700">
           {toast.msg}
         </div>
       )}

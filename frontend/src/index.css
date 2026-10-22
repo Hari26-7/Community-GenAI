@@ -418,23 +418,23 @@ html.dark .sheet-live-badge {
   font-weight: 700;
 }
 
-/* Match & Progress bar */
+/* Match & Progress bar - Flat Enterprise */
 .match-bar {
-  border-radius: 9999px;
+  border-radius: var(--radius-sm);
   overflow: hidden;
-  height: 10px;
+  height: 6px;
   width: 100%;
 }
 
 .match-fill {
-  background: linear-gradient(90deg, #0B3B60, #138808);
+  background: #2563eb;
   height: 100%;
-  border-radius: 9999px;
-  transition: width 0.5s ease;
+  border-radius: var(--radius-sm);
+  transition: width 0.3s ease;
 }
 
 html.dark .match-fill {
-  background: linear-gradient(90deg, #3b82f6, #10b981);
+  background: #3b82f6;
 }
 
 /* Forms */
@@ -497,7 +497,8 @@ html.dark .form-textarea:focus {
 .btn-primary {
   background: #0B3B60;
   color: #fff;
-  box-shadow: 0 2px 10px rgba(11, 59, 96, 0.25);
+  border: 1px solid #082b47;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .btn-primary:hover {
@@ -506,7 +507,8 @@ html.dark .form-textarea:focus {
 
 html.dark .btn-primary {
   background: #2563eb;
-  box-shadow: 0 2px 10px rgba(37, 99, 235, 0.35);
+  border-color: #1d4ed8;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 html.dark .btn-primary:hover {
@@ -550,25 +552,34 @@ html.dark .btn-danger:hover {
   background: #dc2626;
 }
 
-/* Auth Screens */
+/* Auth Screens - Flat Solid Enterprise Standard */
 .auth-container, .lang-container {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 24px;
-  background: radial-gradient(circle at top, #0B3B60, #0b0f19);
+  background: #f8fafc;
+}
+
+html.dark .auth-container, html.dark .lang-container {
+  background: #0b0f19;
 }
 
 .auth-card, .lang-card {
-  background: rgba(30, 41, 59, 0.85);
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: var(--radius-lg);
-  padding: 36px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: var(--radius-md);
+  padding: 32px;
   width: 100%;
   max-width: 440px;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+html.dark .auth-card, html.dark .lang-card {
+  background: #0f172a;
+  border-color: #334155;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .auth-logo {
@@ -677,12 +688,12 @@ html.dark .table tr:hover td {
   background-color: rgba(255, 255, 255, 0.02);
 }
 
-/* Badges */
+/* Badges - Flat Solid Software Tags */
 .badge {
   display: inline-flex;
   align-items: center;
   padding: 3px 8px;
-  border-radius: 9999px;
+  border-radius: var(--radius-sm);
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.02em;
@@ -762,7 +773,8 @@ html.dark .empty-state {
   border-radius: var(--radius-sm);
   font-size: 13px;
   font-weight: 600;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+  border: 1px solid #334155;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 @media (min-width: 768px) {
